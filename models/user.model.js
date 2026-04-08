@@ -32,8 +32,18 @@ const userSchema = new Schema(
       },
       required: true,
     },
+    securityQuestion: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    securityAnswer: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const USER = mongoose.model("User", userSchema);

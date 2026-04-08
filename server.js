@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import { DBconnection } from "./database/db.js";
 import userRoute from "./routes/user.route.js";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import AuthMiddleware from "./middlewares/auth.middleware.js";
+import UserAuthorisation from "./middlewares/authorisation.middleware.js";
 class StartServer {
   app = express();
   port = null;
@@ -19,6 +22,7 @@ class StartServer {
     this.connection = process.env.MONGODBURL;
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.app.use(cookieParser());
   }
   start() {
     this.app.listen(this.port, () =>
@@ -26,10 +30,10 @@ class StartServer {
     );
   }
   setRoutes() {
-    this.app.get("/", (req, res) => {
-      res.json({ success: "successful",message:"welcome to ShadiSync Management System" });
+    this.app.use("/",userRoute);
+    this.app.use("/host",AuthMiddleware.AuthUser,UserAuthorisation.checkRole, (req, res) => {
+      res.json({ message: "Welcome to the admin panel" });
     });
-    this.app.use("/user", userRoute);
   }
   setMongoConnection() {
     const connection = DBconnection(this.connection);
@@ -41,6 +45,6 @@ class StartServer {
         console.log("MongoDB is not connected", err);
       });
   }
-};
+}
 
 new StartServer();

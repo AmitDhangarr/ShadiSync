@@ -1,28 +1,29 @@
-import JWT from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import JWT from "jsonwebtoken";
+import dotenv from "dotenv";
 
-class JWTAuthentication{
+class JWTAuthentication {
   token = null;
   secret = null;
   payload = {};
 
-  constructor(){
+  constructor() {
     this.setConfiguration();
   }
 
-  setConfiguration(){
+  setConfiguration() {
     dotenv.config({ path: "./.env" });
     this.secret = process.env.SECRET;
   }
-  
-  setToken(payload){
-   return JWT.sign({payload:payload},this.secret);
+
+  setToken(payload) {
+    return JWT.sign({ payload: payload }, this.secret);
   }
 
-  getToken(token){
-   return JWT.verify(token,this.secret);
+  getToken(token) {
+    return JWT.verify(token, this.secret);
   }
+}
 
-};
+const JwtToken = new JWTAuthentication();
 
-export default JWTAuthentication;
+export default JwtToken;

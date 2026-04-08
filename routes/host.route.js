@@ -1,7 +1,7 @@
 import { Router } from "express";
 import userController from "../controllers/user.controller.js";
 import UserValidator from "../validator/user.validator.js";
-class UserRoutes {
+class HostRoute {
   router = null;
   constructor() {
     this.router = Router();
@@ -23,4 +23,4 @@ class UserRoutes {
     this.router.delete("/:id", userController.HandleUpdateUser);
   }
 }
- export default new UserRoutes().router;
+ export default new HostRoute().router;

@@ -3,7 +3,7 @@ import validator from "validator";
 export const userSchemaValidator = (data) => {
   const errors = {};
   const sanitizedData = {};
-  const { name, email, password, phone, role } = data;
+  const { name, email, password, phone, role ,securityQuestion,securityAnswer} = data;
 
   // validator for name
   if (!name || validator.isEmpty(name.trim())) {
@@ -54,6 +54,23 @@ export const userSchemaValidator = (data) => {
     sanitizedData.role = role.trim();
   }
 
+  // validator for securityQuestion
+  if (!securityQuestion) {
+    errors.securityQuestion = "Security question is required";
+  } else if (!validator.isLength(securityQuestion, { min: 10, max: 200 })) {
+    errors.securityQuestion = "Security question should be 10-200 characters";
+  } else {
+    sanitizedData.securityQuestion = validator.escape(securityQuestion); // optional escaping
+  }
+
+  // validator for securityAnswer
+  if (!securityAnswer) {
+    errors.securityAnswer = "Security answer is required";
+  } else if (!validator.isLength(securityAnswer, { min: 3, max: 100 })) {
+    errors.securityAnswer = "Security answer should be 3-100 characters";
+  } else {
+    sanitizedData.securityAnswer = validator.escape(securityAnswer);
+  }
   return {
     isValid: Object.keys(errors).length === 0,
     errors,
