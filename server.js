@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import AuthMiddleware from "./middlewares/auth.middleware.js";
 import UserAuthorisation from "./middlewares/authorisation.middleware.js";
+import hostRoute from "./routes/host/host.route.js";
 class StartServer {
   app = express();
   port = null;
@@ -31,9 +32,7 @@ class StartServer {
   }
   setRoutes() {
     this.app.use("/",userRoute);
-    this.app.use("/host",AuthMiddleware.AuthUser,UserAuthorisation.checkRole, (req, res) => {
-      res.json({ message: "Welcome to the admin panel" });
-    });
+    this.app.use("/host",AuthMiddleware.AuthUser,UserAuthorisation.checkRole,hostRoute);
   }
   setMongoConnection() {
     const connection = DBconnection(this.connection);
