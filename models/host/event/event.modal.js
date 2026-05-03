@@ -2,22 +2,26 @@ import mongoose from "mongoose";
 
 const GuestSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  phone: { type: String, required: true, trim: true }
+  phone: { type: String, required: true, trim: true },
 });
 
 const FoodItemSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  category: { type: String, default: "main" }
+  category: { type: String, default: "main" },
 });
 
 const VendorSchema = new mongoose.Schema({
   name: { type: String, required: true },
   service: { type: String, required: true },
-  contact: { type: String }
+  contact: { type: String },
 });
 
 const EventSchema = new mongoose.Schema(
   {
+    eventId: {
+      type: String,
+      required: true,
+    },
     event: {
       type: String,
       required: true,
@@ -54,7 +58,9 @@ const EventSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.model("Event", EventSchema);
+const EVENT = mongoose.model("Event", EventSchema);
+
+export default EVENT;
