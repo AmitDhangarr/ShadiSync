@@ -6,15 +6,15 @@ class HostEventRoute {
   constructor() {
     this.router = Router();
     this.CreateEvent();
-    this.GetEvent();
+    this.GetEvents();
     this.UpdateEvent();
     this.DeleteEvent();
   }
   CreateEvent() {
     this.router.post("/",EventValidator.validateCreateEvent,HostEventController.HandleCreateEvent);
   }
-  GetEvent() {
-    this.router.get("/:id",HostEventController.HandleGetEvent);
+  GetEvents() {
+    this.router.get("/",HostEventController.HandleGetEvents);
   }
   UpdateEvent() {
     this.router.patch("/:id",EventValidator.validateUpdateEvent,HostEventController.HandleUpdateEvent);
