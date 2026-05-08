@@ -7,6 +7,9 @@ import cookieParser from "cookie-parser";
 import AuthMiddleware from "./middlewares/auth.middleware.js";
 import UserAuthorisation from "./middlewares/authorisation.middleware.js";
 import hostRoute from "./routes/host/host.route.js";
+import GuestRoute from './routes/guest/guest.route.js';
+
+
 class StartServer {
   app = express();
   port = null;
@@ -33,6 +36,7 @@ class StartServer {
   setRoutes() {
     this.app.use("/",userRoute);
     this.app.use("/host",AuthMiddleware.AuthUser,UserAuthorisation.checkRole,hostRoute);
+    this.app.use("/guest",AuthMiddleware.AuthUser,GuestRoute);
   }
   setMongoConnection() {
     const connection = DBconnection(this.connection);

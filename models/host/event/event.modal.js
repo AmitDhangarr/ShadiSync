@@ -10,10 +10,62 @@ const FoodItemSchema = new mongoose.Schema({
   category: { type: String, default: "main" },
 });
 
+const PaymentSchema = new mongoose.Schema({
+  amount: {
+    type: Number,
+    required: true,
+  },
+  paymentType: {
+    type: String,
+    enum: [
+      "advance",
+      "partial",
+      "settlement",
+      "refund",
+      "extra_charge",
+      "discount",
+    ],
+    required: true,
+  },
+  paymentDate: {
+    type: Date,
+    default: Date.now,
+  },
+  note: {
+    type: String,
+    required: true,
+  },
+});
+
 const VendorSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  service: { type: String, required: true },
-  contact: { type: String },
+  name: {
+    type: String,
+    required: true,
+  },
+
+  service: {
+    type: String,
+    required: true,
+  },
+
+  contact: {
+    type: String,
+    required: true,
+  },
+
+  address: {
+    type: String,
+    required: true,
+  },
+  eventName: {
+    type: String,
+    required: true,
+  },
+  totalAmount: {
+    type: Number,
+    required: true,
+  },
+  payments: [PaymentSchema],
 });
 
 const EventSchema = new mongoose.Schema(
@@ -31,14 +83,33 @@ const EventSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    eventTime: {
+      type: String,
+      required: true,
+    },
     eventVenue: {
       type: String,
       required: true,
       trim: true,
     },
-    guests: [GuestSchema],
-    foodItems: [FoodItemSchema],
-    vendors: [VendorSchema],
+
+    guests: {
+      type: [GuestSchema],
+      required: true,
+      default: [],
+    },
+
+    foodItems: {
+      type: [FoodItemSchema],
+      required: true,
+      default: [],
+    },
+
+    vendors: {
+      type: [VendorSchema],
+      required: true,
+      default: [],
+    },
 
     photography: {
       type: Boolean,
@@ -55,6 +126,12 @@ const EventSchema = new mongoose.Schema(
     },
     expense: {
       type: Number,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["upcoming", "ongoing", "completed", "cancelled"],
+      default: "upcoming",
       required: true,
     },
   },

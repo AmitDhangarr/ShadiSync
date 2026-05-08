@@ -1,4 +1,4 @@
-import EVENT from "../models/host/event/event.modal.js";
+import EVENT from "../../models/host/event/event.modal.js";
 import { nanoid } from "nanoid";
 class HostEventController {
   static async HandleCreateEvent(req, res) {
@@ -56,17 +56,7 @@ class HostEventController {
   }
   static async HandleGetEvents(req, res) {
     try {
-      const events = await EVENT.find(
-        {},
-        {
-          eventId: 1,
-          event: 1,
-          eventDate: 1,
-          eventVenue: 1,
-          budget: 1,
-          expense: 1,
-        },
-      );
+      const events = await EVENT.find({});
 
       if (events.length === 0) {
         return res.status(200).json({
