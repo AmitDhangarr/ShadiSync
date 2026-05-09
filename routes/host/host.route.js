@@ -1,7 +1,8 @@
 import { Router } from "express";
 import userController from "../../controllers/user.controller.js";
 import UserValidator from "../../validator/user.validator.js";
-import hostEventRoute from "./host.event.route.js";
+import HostEventRoute from "./host.event.route.js";
+import HostInvitationRoute from "./host.invitation.route.js";
 class HostRoute {
   router = null;
   constructor() {
@@ -12,14 +13,10 @@ class HostRoute {
     this.Gift();
   }
   Event() {
-    this.router.use("/event", hostEventRoute);
+    this.router.use("/event", HostEventRoute);
   }
   Invitation() {
-    this.router.post(
-      "/invitation",
-      UserValidator.ValidateCreateUser,
-      userController.HandleSignup,
-    );
+    this.router.use("/invitation", HostInvitationRoute);
   }
   Expense() {
     this.router.patch("/expense", userController.HandleUpdateUser);
