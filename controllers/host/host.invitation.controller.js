@@ -89,7 +89,7 @@ class HostInvitationController {
       const uniqueId = req.params.id;
       const Invite = await INVITATION.findOneAndUpdate(
         { InviteId: uniqueId },
-        {...data},
+        { ...data },
       );
 
       if (Invite) {

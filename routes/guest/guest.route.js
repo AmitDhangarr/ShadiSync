@@ -2,6 +2,7 @@ import { Router } from "express";
 import UserValidator from "../../validator/user.validator.js";
 import GuestEventRoute from "./guest.event.route.js";
 import UserController from "../../controllers/user.controller.js";
+import guestInvitationRoute from "./guest.invitation.route.js";
 class GuestRoute {
   router = null;
   constructor() {
@@ -17,8 +18,7 @@ class GuestRoute {
   Invitation() {
     this.router.use(
       "/invitation",
-      UserValidator.ValidateCreateUser,
-      UserController.HandleSignup,
+      guestInvitationRoute
     );
   }
   Expense() {
