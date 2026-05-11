@@ -3,6 +3,7 @@ import userController from "../../controllers/user.controller.js";
 import UserValidator from "../../validator/user.validator.js";
 import HostEventRoute from "./host.event.route.js";
 import HostInvitationRoute from "./host.invitation.route.js";
+import HostGiftRoute from "./host.gift.route.js";
 class HostRoute {
   router = null;
   constructor() {
@@ -19,10 +20,10 @@ class HostRoute {
     this.router.use("/invitation", HostInvitationRoute);
   }
   Expense() {
-    this.router.patch("/expense", userController.HandleUpdateUser);
+    this.router.use("/expense", userController.HandleUpdateUser);
   }
   Gift() {
-    this.router.delete("/gift", userController.HandleUpdateUser);
+    this.router.use("/gift", HostGiftRoute);
   }
 }
 export default new HostRoute().router;
