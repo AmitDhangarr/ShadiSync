@@ -107,6 +107,6 @@ const giftRegistrySchema = new mongoose.Schema(
   }
 );
 
-const Gift = mongoose.model("Gift", giftRegistrySchema);
+const GIFT = mongoose.model("Gift", giftRegistrySchema);
 
-export default Gift;
+export default GIFT;

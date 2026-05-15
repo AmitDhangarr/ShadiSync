@@ -3,6 +3,7 @@ import UserValidator from "../../validator/user.validator.js";
 import GuestEventRoute from "./guest.event.route.js";
 import UserController from "../../controllers/user.controller.js";
 import guestInvitationRoute from "./guest.invitation.route.js";
+import guestGiftRoute from "./guest.gift.route.js";
 class GuestRoute {
   router = null;
   constructor() {
@@ -25,7 +26,7 @@ class GuestRoute {
     this.router.use("/expense", UserController.HandleUpdateUser);
   }
   Gift() {
-    this.router.use("/gift", UserController.HandleUpdateUser);
+    this.router.use("/gift", guestGiftRoute);
   }
 }
 export default new GuestRoute().router;
