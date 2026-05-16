@@ -9,24 +9,25 @@ class GuestGiftRoute {
     this.router = Router();
     this.createGiftRegistry();
     this.getAllGiftRegistry();
+    this.getGiftRegistry();
     this.updateGiftRegistry();
     this.deleteGiftRegistry();
    
   }
   createGiftRegistry() {
-    this.router.post("/:eventId/",GiftValidator.HandleGiftCreation,GuestGiftController.HandleCreateGiftRegistry);
+    this.router.post("/:event_id/",GiftValidator.HandleGiftCreation,GuestGiftController.HandleCreateGiftRegistry);
   }
   getGiftRegistry() {
     this.router.get("/:id",GuestGiftController.HandlegetGiftRegistry);
   }
   getAllGiftRegistry() {
-    this.router.get("/gifts",GuestGiftController.HandlegetAllGiftRegistry);
+    this.router.get("/all",GuestGiftController.HandlegetAllGiftRegistry);
   }
   updateGiftRegistry() {
-    this.router.patch("/update/:id",GuestGiftController.HandleupdateGiftRegistry);
+    this.router.patch("/:id",GiftValidator.HandleGiftUpdation,GuestGiftController.HandleupdateGiftRegistry);
   }
   deleteGiftRegistry() {
-    this.router.delete("/delete/:id",GuestGiftController.HandledeleteGiftRegistry);
+    this.router.delete("/:id",GuestGiftController.HandledeleteGiftRegistry);
   }
 }
 

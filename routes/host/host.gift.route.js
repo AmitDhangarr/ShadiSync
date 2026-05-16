@@ -9,12 +9,14 @@ class HostGiftRoutes {
     this.getAllRegistry();
     this.getGuestList();
     this.getCashReceived();
-    this.getGiftRegistry();
     this.getGuestList();
     this.getItemlist();
+    this.getGiftRegistry();
     this.getPaymentDetails();
     this.getGiftRegistryByEvent();
     this.getGiftRegistryByGuest();
+    this.sendThankNote();
+     
   }
   getGiftRegistry() {
     this.router.get("/:id", giftController.getGiftRegistry);
@@ -23,7 +25,7 @@ class HostGiftRoutes {
     this.router.get("/gifts", giftController.getAllRegistry);
   }
   sendThankNote() {
-    this.router.post("/thanknote", giftController.sendThankYou);
+    this.router.post("/thanknote/:id", giftController.sendThankYou);
   }
   getItemlist() {
     this.router.get("/gifts/items", giftController.getItemList);
@@ -38,10 +40,10 @@ class HostGiftRoutes {
     this.router.get("/payment/:id", giftController.getPaymentDetails);
   }
   getGiftRegistryByEvent() {
-    this.router.get("/:id", giftController.getGiftRegistryByEvent);
+    this.router.get("/event/:event_id", giftController.getGiftRegistryByEvent);
   }
   getGiftRegistryByGuest() {
-    this.router.get("/:guestname", giftController.getGiftRegistryByGuest);
+    this.router.get("/guest/:guestname", giftController.getGiftRegistryByGuest);
   }
 }
 
