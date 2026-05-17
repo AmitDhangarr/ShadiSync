@@ -1,0 +1,101 @@
+import mongoose from "mongoose";
+
+const { Schema, model } = mongoose;
+
+const paymentSchema = new Schema(
+  {
+    eventId: {
+      type: Schema.Types.ObjectId,
+      ref: "Event",
+      required: true,
+      index: true,
+    },
+
+    expenseId: {
+      type: Schema.Types.ObjectId,
+      ref: "Expense",
+      required: true,
+    },
+
+    vendorId: {
+      type: Schema.Types.ObjectId,
+      ref: "Vendor",
+    },
+
+    paymentCode: {
+      type: String,
+      unique: true,
+      trim: true,
+    },
+
+    amount: {
+      type: Number,
+      required: true,
+    },
+
+    paymentType: {
+      type: String,
+      enum: ["Advance", "Partial", "Final", "Refund"],
+      required: true,
+    },
+
+    paymentMethod: {
+      type: String,
+      enum: [
+        "Cash",
+        "UPI",
+        "Bank Transfer",
+        "Card",
+        "Cheque",
+      ],
+      required: true,
+    },
+
+    transactionReference: String,
+
+    paymentDate: {
+      type: Date,
+      required: true,
+    },
+
+    status: {
+      type: String,
+      enum: [
+        "Pending",
+        "Completed",
+        "Failed",
+        "Cancelled",
+      ],
+      default: "Completed",
+    },
+
+    attachments: [
+      {
+        fileName: String,
+        fileUrl: String,
+      },
+    ],
+
+    notes: String,
+
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+paymentSchema.index({ eventId: 1 });
+paymentSchema.index({ expenseId: 1 });
+
+const PAYMENT = model("Payment", paymentSchema);
+
+export default PAYMENT;
