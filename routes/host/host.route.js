@@ -5,6 +5,7 @@ import HostEventRoute from "./host.event.route.js";
 import HostInvitationRoute from "./host.invitation.route.js";
 import HostGiftRoute from "./host.gift.route.js";
 import HostExpenseRoute from "./host.expense.route.js";
+
 class HostRoute {
   router = null;
   constructor() {

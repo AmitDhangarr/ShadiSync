@@ -105,7 +105,6 @@ const budgetSchema = new Schema(
   }
 );
 
-budgetSchema.index({ eventId: 1 });
 budgetSchema.index({ category: 1 });
 budgetSchema.index({ status: 1 });
 
