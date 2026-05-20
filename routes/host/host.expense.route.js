@@ -19,7 +19,6 @@ class HostExpenseRoutes {
     this.updateBudget();
     this.deleteBudget();
 
-    this.createExpense();
     this.getAllExpense();
     this.getExpenseByVendor();
     this.getExpenseByEvent();
@@ -27,10 +26,10 @@ class HostExpenseRoutes {
     this.getExpenseAmountPaid();
     this.getExpenseBasedonPriority();
     this.getExpense();
+    this.createExpense();
     this.updateExpense();
     this.deleteExpense();
 
-    this.createPayment();
     this.getAllPayment();
     this.getPaymentByMethod();
     this.getPaymentByEvent();
@@ -38,7 +37,7 @@ class HostExpenseRoutes {
     this.getPaymentByStatus();
     this.getPaymentByType();
     this.getPayment();
-    this.updatePayment();
+    this.createPayment();
     this.deletePayment();
   }
 
@@ -59,7 +58,10 @@ class HostExpenseRoutes {
     );
   }
   categoryWiseBudget() {
-    this.router.get("/budget/category/:category", ExpenseController.handleCategoryWiseBudget);
+    this.router.get(
+      "/budget/category/:category",
+      ExpenseController.handleCategoryWiseBudget,
+    );
   }
   budgetByEvent() {
     this.router.get(
@@ -91,7 +93,7 @@ class HostExpenseRoutes {
 
   createExpense() {
     this.router.post(
-      "/",
+      "/:event_id/:budget_id/",
       ExpenseValidator.HandleExpenseValidation,
       ExpenseController.handleCreateExpense,
     );
@@ -141,7 +143,7 @@ class HostExpenseRoutes {
 
   createPayment() {
     this.router.post(
-      "/payment",
+      "/payment/:event_id/:expense_id/:vendor_id/",
       ExpenseValidator.HandlePaymentsValidation,
       ExpenseController.handleCreatePayment,
     );
@@ -181,9 +183,6 @@ class HostExpenseRoutes {
   }
   getPayment() {
     this.router.get("/payment/:id", ExpenseController.handleGetPayment);
-  }
-  updatePayment() {
-    this.router.patch("/payment/:id", ExpenseController.handleUpdatePayment);
   }
   deletePayment() {
     this.router.delete("/payment/:id", ExpenseController.handleDeletePayment);

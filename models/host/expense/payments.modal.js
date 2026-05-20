@@ -93,9 +93,8 @@ const paymentSchema = new Schema(
   }
 );
 
-paymentSchema.index({ eventId: 1 });
 paymentSchema.index({ expenseId: 1 });
 
-const PAYMENT = model("Payment", paymentSchema);
+const PAYMENTS = model("Payment", paymentSchema);
 
-export default PAYMENT;
+export default PAYMENTS;

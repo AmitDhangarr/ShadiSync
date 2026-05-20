@@ -1,18 +1,7 @@
 import validator from "validator";
-import mongoose from "mongoose";
-
-const { Types } = mongoose;
 
 const allowedPaymentTypes = ["Advance", "Partial", "Final", "Refund"];
-
-const allowedPaymentMethods = [
-  "Cash",
-  "UPI",
-  "Bank Transfer",
-  "Card",
-  "Cheque",
-];
-
+const allowedPaymentMethods = ["Cash", "UPI", "Bank Transfer", "Card", "Cheque"];
 const allowedStatuses = ["Pending", "Completed", "Failed", "Cancelled"];
 
 export const paymentSchemaValidator = (data) => {
@@ -20,45 +9,16 @@ export const paymentSchemaValidator = (data) => {
   const sanitizedData = {};
 
   const {
-    eventId,
-    expenseId,
-    vendorId,
     paymentCode,
     amount,
     paymentType,
     paymentMethod,
-    transactionReference,
     paymentDate,
     status,
-    attachments,
+    transactionReference,
     notes,
-    createdBy,
-    updatedBy,
+    attachments,
   } = data;
-
-  if (!eventId || validator.isEmpty(eventId.toString().trim())) {
-    errors.eventId = "Event ID is required";
-  } else if (!Types.ObjectId.isValid(eventId)) {
-    errors.eventId = "Invalid event ID";
-  } else {
-    sanitizedData.eventId = eventId;
-  }
-
-  if (!expenseId || validator.isEmpty(expenseId.toString().trim())) {
-    errors.expenseId = "Expense ID is required";
-  } else if (!Types.ObjectId.isValid(expenseId)) {
-    errors.expenseId = "Invalid expense ID";
-  } else {
-    sanitizedData.expenseId = expenseId;
-  }
-
-  if (vendorId !== undefined) {
-    if (!Types.ObjectId.isValid(vendorId)) {
-      errors.vendorId = "Invalid vendor ID";
-    } else {
-      sanitizedData.vendorId = vendorId;
-    }
-  }
 
   if (!paymentCode || validator.isEmpty(paymentCode.toString().trim())) {
     errors.paymentCode = "Payment code is required";
@@ -66,12 +26,13 @@ export const paymentSchemaValidator = (data) => {
     sanitizedData.paymentCode = validator.escape(paymentCode.toString().trim());
   }
 
+  const numAmount = Number(amount);
   if (amount === undefined || amount === null || amount === "") {
     errors.amount = "Amount is required";
-  } else if (!validator.isNumeric(amount.toString())) {
+  } else if (Number.isNaN(numAmount)) {
     errors.amount = "Amount must be numeric";
   } else {
-    sanitizedData.amount = Number(amount);
+    sanitizedData.amount = numAmount;
   }
 
   if (!paymentType || validator.isEmpty(paymentType.toString().trim())) {
@@ -98,7 +59,7 @@ export const paymentSchemaValidator = (data) => {
     sanitizedData.paymentDate = new Date(paymentDate);
   }
 
-  if (status !== undefined) {
+  if (status !== undefined && status !== null && status !== "") {
     if (!allowedStatuses.includes(status)) {
       errors.status = "Invalid payment status";
     } else {
@@ -106,37 +67,26 @@ export const paymentSchemaValidator = (data) => {
     }
   }
 
-  if (transactionReference !== undefined) {
+  if (transactionReference !== undefined && transactionReference !== null) {
     sanitizedData.transactionReference = validator.escape(
       transactionReference.toString().trim()
     );
   }
 
-  if (notes !== undefined) {
+  if (notes !== undefined && notes !== null) {
     sanitizedData.notes = validator.escape(notes.toString().trim());
   }
 
   if (Array.isArray(attachments)) {
-    sanitizedData.attachments = attachments.map((a, i) => ({
-      fileName: a.fileName
-        ? validator.escape(a.fileName.toString().trim())
-        : undefined,
-      fileUrl: a.fileUrl ? a.fileUrl.toString().trim() : undefined,
-    }));
+    sanitizedData.attachments = attachments
+      .map((a) => ({
+        fileName: a.fileName
+          ? validator.escape(a.fileName.toString().trim())
+          : null,
+        fileUrl: a.fileUrl ? a.fileUrl.toString().trim() : null,
+      }))
+      .filter((a) => a.fileName && a.fileUrl);
   }
-
-  const objectIdFields = ["createdBy", "updatedBy"];
-
-  objectIdFields.forEach((field) => {
-    const value = data[field];
-    if (value !== undefined) {
-      if (!Types.ObjectId.isValid(value)) {
-        errors[field] = `Invalid ${field} ID`;
-      } else {
-        sanitizedData[field] = value;
-      }
-    }
-  });
 
   return {
     isValid: Object.keys(errors).length === 0,

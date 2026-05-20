@@ -172,7 +172,6 @@ const expenseSchema = new Schema(
   },
 );
 
-expenseSchema.index({ eventId: 1 });
 expenseSchema.index({ budgetId: 1 });
 expenseSchema.index({ paymentStatus: 1 });
 

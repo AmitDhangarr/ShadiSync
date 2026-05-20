@@ -1,4 +1,7 @@
 import BUDGET from "./../../models/host/expense/buget.modal.js";
+import EXPENSE from "../../models/host/expense/expense.modal.js";
+import PAYMENTS from "../../models/host/expense/payments.modal.js";
+
 class ExpenseController {
   static async handleCreateBudget(req, res) {
     try {
@@ -230,7 +233,7 @@ class ExpenseController {
   static async handleCategoryWiseBudget(req, res) {
     try {
       const category = req.params.category;
-      const categoryWiseBudget = await BUDGET.findOne({category:category});
+      const categoryWiseBudget = await BUDGET.findOne({ category: category });
 
       if (categoryWiseBudget) {
         return res.status(200).json({
@@ -364,66 +367,601 @@ class ExpenseController {
 
   // expense
   static async handleCreateExpense(req, res) {
-    return res.json({ successful: true });
+    try {
+      const data = req.body;
+      const expense = await EXPENSE.create({
+        eventId: req.params.event_id,
+        BudgetId: req.params.budget_id,
+        ...data,
+      });
+
+      if (expense) {
+        return res.status(201).json({
+          success: true,
+          data: expense,
+          message: "expense has been done",
+        });
+      }
+
+      if (!expense) {
+        return res.status(404).json({
+          success: true,
+          error: "error while creating expense",
+          message: "expense has not been done",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetExpense(req, res) {
-    return res.json({ successful: true });
+    try {
+      const expense = await EXPENSE.findOne({ _id: req.params.id });
+
+      if (expense) {
+        return res.status(200).json({
+          success: true,
+          data: expense,
+          message: "expense has been fetched",
+        });
+      }
+
+      if (!expense) {
+        return res.status(404).json({
+          success: true,
+          error: "error while fetching expense",
+          message: "expense has not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetAllExpense(req, res) {
-    return res.json({ successful: true });
+    try {
+      const expenses = await EXPENSE.find({});
+      if (expenses) {
+        return res.status(200).json({
+          success: true,
+          data: expenses,
+          message: "expenses have been fetched",
+        });
+      }
+
+      if (!expenses) {
+        return res.status(404).json({
+          success: true,
+          error: "error while fetching expense",
+          message: "expenses have not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleUpdateExpense(req, res) {
-    return res.json({ successful: true });
+    try {
+      const { status, paymentStatus, priority, attachments } = req.body;
+
+      const datatoupdate = {
+        status,
+        paymentStatus,
+        priority,
+        attachments,
+      };
+
+      const updateValidator = (data) => {
+        const error = {};
+
+        if (!data.status || data.status.trim() === "") {
+          error.status = "provide the status";
+        }
+
+        if (!data.paymentStatus || data.paymentStatus.trim() === "") {
+          error.paymentStatus = "provide the paymentStatus";
+        }
+
+        if (!data.priority || data.priority.trim() === "") {
+          error.priority = "provide the priority";
+        }
+
+        if (!data.attachments || String(data.attachments).trim() === "") {
+          error.attachments = "provide the attachments";
+        }
+
+        return Object.keys(error).length > 0 ? error : null;
+      };
+
+      const errors = updateValidator(datatoupdate);
+
+      if (errors) {
+        return res.status(400).json({
+          success: false,
+          error: errors,
+          message: "update validation has failed",
+        });
+      }
+
+      const expense = await EXPENSE.findByIdAndUpdate(
+        req.params.id,
+        datatoupdate,
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+
+      if (!expense) {
+        return res.status(404).json({
+          success: false,
+          message: "expense not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: expense,
+        message: "expense has been updated",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error.message,
+        message: "internal server error",
+      });
+    }
   }
   static async handleDeleteExpense(req, res) {
-    return res.json({ successful: true });
+    try {
+      const expense = await EXPENSE.findByIdAndDelete({ _id: req.params.id });
+
+      return res.status(200).json({
+        success: true,
+        data: expense,
+        message: "expense has been deleted",
+      });
+
+      if (!expense) {
+        return res.status(404).json({
+          success: false,
+          message: "expense not found",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error.message,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetExpenseByVendor(req, res) {
-    return res.json({ successful: true });
+    try {
+      const vendor = await EXPENSE.find(
+        { "vendor.vendorId": req.params.vendor_id },
+        {},
+      );
+
+      if (vendor) {
+        return res.status(200).json({
+          success: true,
+          data: vendor,
+          message: "expense related to vendor has been fetched",
+        });
+      }
+
+      if (!vendor) {
+        return res.status(400).json({
+          success: true,
+          error: "error while fetching vendor",
+          message: "expense related to vendor has not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetExpenseByEvent(req, res) {
-    return res.json({ successful: true });
+    try {
+      const expenses = await EXPENSE.find({ eventId: req.params.event_id }, {});
+
+      if (expenses) {
+        return res.status(200).json({
+          success: true,
+          data: expenses,
+          message: "expenses related to event have been fetched",
+        });
+      }
+
+      if (!expenses) {
+        return res.status(400).json({
+          success: true,
+          error: "error while fetching expense",
+          message: "expenses related to event have not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetExpenseTotalAmount(req, res) {
-    return res.json({ successful: true });
+    try {
+      const totalAmount = await EXPENSE.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalAmount: {
+              $sum: "$totalAmount",
+            },
+          },
+        },
+      ]);
+
+      if (totalAmount) {
+        return res.status(200).json({
+          success: true,
+          data: totalAmount,
+          message: "totalAmount has been fetched",
+        });
+      }
+
+      if (!totalAmount) {
+        return res.status(404).json({
+          success: true,
+          error: "error while fetching totalAmount",
+          message: "totalAmount has not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetExpenseAmountPaid(req, res) {
-    return res.json({ successful: true });
+    try {
+      const paidAmount = await EXPENSE.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalPaidAmount: {
+              $sum: "$paidAmount",
+            },
+          },
+        },
+      ]);
+
+      if (paidAmount) {
+        return res.status(200).json({
+          success: true,
+          data: paidAmount,
+          message: "paidAmount has been fetched",
+        });
+      }
+
+      if (!paidAmount) {
+        return res.status(404).json({
+          success: true,
+          error: "error while fetching paidAmount",
+          message: "paidAmount has not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetExpenseBasedOnPriority(req, res) {
-    return res.json({ successful: true });
+    try {
+      const priority = req.params.priority;
+      const priorityWisedExpenses = await EXPENSE.find({ priority: priority });
+
+      if (priorityWisedExpenses) {
+        return res.status(200).json({
+          success: true,
+          data: priorityWisedExpenses,
+          message: "priorityWisedExpenses have been fetched",
+        });
+      }
+
+      if (!priorityWisedExpenses) {
+        return res.status(404).json({
+          success: true,
+          error: "error while fetching priorityWisedExpenses",
+          message: "priorityWisedExpenses have not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
 
   // payments
   static async handleCreatePayment(req, res) {
-    return res.json({ successful: true });
+    try {
+      const data = req.body;
+      const payment = await PAYMENTS.create({
+        eventId: req.params.event_id,
+        expenseId: req.params.expense_id,
+        vendorId: req.params.vendor_id,
+        ...data,
+      });
+
+      if (payment) {
+        return res.status(201).json({
+          success: true,
+          data: payment,
+          message: "payment has been made",
+        });
+      }
+
+      if (!payment) {
+        return res.status(400).json({
+          success: true,
+          error: "error while creating payment",
+          message: "payment has not been made",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetAllPayment(req, res) {
-    return res.json({ successful: true });
+    try {
+      const payment = await PAYMENTS.find({});
+
+      if (payment) {
+        return res.status(201).json({
+          success: true,
+          data: payment,
+          message: "payments have been fetched",
+        });
+      }
+
+      if (!payment) {
+        return res.status(400).json({
+          success: true,
+          error: "error while fetching payments",
+          message: "payments have not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetPaymentByMethod(req, res) {
-    return res.json({ successful: true });
+    try {
+      const method = req.params.method;
+      const payments = await PAYMENTS.find({ paymentMethod:method }, {});
+
+      if (payments) {
+        return res.status(201).json({
+          success: true,
+          data: payments,
+          message: "payments have been fetched",
+        });
+      }
+
+      if (!payments) {
+        return res.status(400).json({
+          success: true,
+          error: "error while creating payment",
+          message: "payments have not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetPaymentByEvent(req, res) {
-    return res.json({ successful: true });
+    try {
+      const payment = await PAYMENTS.findOne({ eventId: req.params.event_id });
+
+      if (payment) {
+        return res.status(201).json({
+          success: true,
+          data: payment,
+          message: "payment has been fetched",
+        });
+      }
+
+      if (!payment) {
+        return res.status(400).json({
+          success: true,
+          error: "error while fetching payment",
+          message: "payment has not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetPaymentByVendor(req, res) {
-    return res.json({ successful: true });
+    try {
+      const payments = await PAYMENTS.find(
+        { vendorId: req.params.vendor_id },
+        {},
+      );
+
+      if (payments) {
+        return res.status(201).json({
+          success: true,
+          data: payments,
+          message: "payments have been fetched",
+        });
+      }
+
+      if (!payments) {
+        return res.status(400).json({
+          success: true,
+          error: "error while creating payment",
+          message: "payments have not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetPaymentByStatus(req, res) {
-    return res.json({ successful: true });
+    try {
+      const status = req.params.status;
+      const payment = await PAYMENTS.find({ status: status });
+
+      if (payment) {
+        return res.status(201).json({
+          success: true,
+          data: payment,
+          message: "payment based on status has been fetched",
+        });
+      }
+
+      if (!payment) {
+        return res.status(400).json({
+          success: true,
+          error: "error while creating payment",
+          message: "payment based on status has not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetPaymentByType(req, res) {
-    return res.json({ successful: true });
+    try {
+      const type = req.params.type;
+      const payments = await PAYMENTS.find({ paymentType: type });
+      if (payments) {
+        return res.status(201).json({
+          success: true,
+          data: payments,
+          message: "payments have been fetched",
+        });
+      }
+
+      if (!payments) {
+        return res.status(400).json({
+          success: true,
+          error: "error while creating payment",
+          message: "payment have not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
   static async handleGetPayment(req, res) {
-    return res.json({ successful: true });
+    try {
+      const payment = await PAYMENTS.findOne({
+        expenseId: req.params.id,
+      });
+
+      if (payment) {
+        return res.status(201).json({
+          success: true,
+          data: payment,
+          message: "payment has been fetched",
+        });
+      }
+
+      if (!payment) {
+        return res.status(400).json({
+          success: true,
+          error: "error while fetching the payment",
+          message: "payment has not been fetched",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
-  static async handleUpdatePayment(req, res) {
-    return res.json({ successful: true });
-  }
+  
   static async handleDeletePayment(req, res) {
-    return res.json({ successful: true });
+    try {
+      const payment = await PAYMENTS.findByIdAndDelete({ _id: req.params.id });
+
+      if (payment) {
+        return res.status(201).json({
+          success: true,
+          data: payment,
+          message: "payment has been deleted",
+        });
+      }
+
+      if (!payment) {
+        return res.status(400).json({
+          success: true,
+          error: "error while deleting payment",
+          message: "payment has not been deleted",
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "internal server error",
+      });
+    }
   }
 }
 export default ExpenseController;
