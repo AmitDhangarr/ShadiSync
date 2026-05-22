@@ -1,50 +1,173 @@
 import { USER } from "../models/user.model.js";
 import JwtToken from "../service/jwttokens.js";
+import bcrypt from "bcrypt";
+
 class UserController {
-  static async HandleLogin(req, res) {
-    const { email, password } = req.body;
-    const User = await USER.findOne({ email, password });
-    if (!User) {
-      return res.status(404).json({
-        success: false,
-        errors: "Invalid email or password",
-        message: "no user found",
-      });
-    } else {
-      const token = JwtToken.setToken(User);
+  static async handleLogin(req, res) {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "Email and password are required.",
+        });
+      }
+
+      const user = await USER.findOne({ email });
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Invalid email or password.",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid email or password.",
+        });
+      }
+
+      const token = JwtToken.setToken(user);
+
       res.cookie("token", token, {
         httpOnly: true,
-        secure: false, 
         sameSite: "lax",
         path: "/",
-        maxAge: 24 * 60 * 60 * 1000,  
+        maxAge: 24 * 60 * 60 * 1000,
       });
+
       return res.status(200).json({
         success: true,
-        message: "Logged In successfully",
+        message: "Logged in successfully.",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
 
-  static async HandleSignup(req, res) {
-    const { name, email, password, phone, role,securityQuestion,
-  securityAnswer } = req.body;
+  static async handleCreateAccount(req, res) {
+    try {
+      const {
+        name,
+        email,
+        password,
+        phone,
+        role,
+        securityQuestion,
+        securityAnswer,
+      } = req.body;
 
-    const user = await USER.create({ name, email, password, phone,role,securityQuestion,
-  securityAnswer });
+      if (!name || !email || !password || !phone) {
+        return res.status(400).json({
+          success: false,
+          message: "Name, email, password and phone are required.",
+        });
+      }
 
-    if (user) {
-      return res.status(200).json({
+      const existingUser = await USER.findOne({ email });
+
+      if (existingUser) {
+        return res.status(409).json({
+          success: false,
+          message: "An account with this email already exists.",
+        });
+      }
+
+      const user = await USER.create({
+        name,
+        email,
+        password,
+        phone,
+        role,
+        securityQuestion,
+        securityAnswer,
+      });
+
+      return res.status(201).json({
         success: true,
-        message: "user has been registered successfully",
+        data: { name: user.name, email: user.email, role: user.role },
+        message: "Account created successfully.",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
-  static async HandleUpdateUser(req, res) {
-    return res.end("welcome to delete page");
+
+  static async handlePasswordUpdate(req, res) {
+    try {
+      const user = await USER.findByIdAndUpdate(
+        req.params.id,
+        { ...req.body },
+        { new: true },
+      );
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found. Please check the ID.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: { name: user.name, email: user.email, role: user.role },
+        message: "User updated successfully.",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again later.",
+      });
+    }
   }
-  static async HandleDeleteUser(req, res) {
-    return res.end("welcome to delete page");
+
+  static async handleDeleteAccount(req, res) {
+    try {
+      const user = await USER.findByIdAndDelete(req.params.id);
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found. Please check the ID.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "User deleted successfully.",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  }
+  static async handleForgotPassword(req, res) {
+    return res.json({ hello: "hii" });
+  }
+  static async handleVerifySecurityQuestion(req, res) {
+    return res.json({ hello: "hii" });
+  }
+  static async handleLogout(req, res) {
+    return res.json({ hello: "hii" });
+  }
+  static async handleEditProfile(req, res) {
+    return res.json({ hello: "hii" });
+  }
+  static async handlegetProfile(req, res) {
+    return res.json({ hello: "hii" });
   }
 }
 

@@ -1,191 +1,158 @@
 import INVITATION from "./../../models/host/Invitation/invitation.modal.js";
+
+const ALLOWED_ACCEPTANCE = ["accepted", "not accepted"];
+
 class GuestInvitationController {
   static async handleGetInvitation(req, res) {
     try {
-      const id = req.params.id;
-      const invitation = await INVITATION.findOne({ InviteId: id });
-      if (invitation) {
-        return res.status(200).json({
-          success: true,
-          data: invitation,
-          message: "invitation has been successfully fetched",
-        });
-      }
+      const invitation = await INVITATION.findOne({ InviteId: req.params.id });
 
       if (!invitation) {
         return res.status(404).json({
           success: false,
-          error: "inviteId is not valid",
-          message: "invitation has not fetched",
-        });
-      }
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        error: error,
-        message: "internal server error",
-      });
-    }
-  }
-
-  static async handleGetInvitations(req, res) {
-    try {
-      const id = req.params.id;
-      const invitations = await INVITATION.find({});
-      if (invitations) {
-        return res.status(200).json({
-          success: true,
-          data: invitations,
-          message: "invitations have been successfully fetched",
-        });
-      }
-
-      if (!invitations) {
-        return res.status(404).json({
-          success: false,
-          error: "something went wrong",
-          message: "invitation have not fetched",
-        });
-      }
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        error: error,
-        message: "internal server error",
-      });
-    }
-  }
-
-  static async handleRespondToInvitation(req, res) {
-    try {
-      const id = req.params.id;
-      const { acceptance } = req.body;
-
-      const allowed = ["accepted", "not accepted"];
-
-      if (!acceptance || !allowed.includes(acceptance)) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid acceptance value",
-          message: "Provide a valid acceptance status",
-        });
-      }
-
-      const invitation = await INVITATION.findOneAndUpdate(
-        { InviteId: id },
-        {
-          $set: { acceptance },
-        },
-        { new: true },
-      );
-
-      if (!invitation) {
-        return res.status(404).json({
-          success: false,
-          error: "Invalid InviteId",
-          message: "Invitation not found",
+          message: "Invitation not found. Please check the invite ID.",
         });
       }
 
       return res.status(200).json({
         success: true,
         data: invitation,
-        message: "Invitation successfully updated",
+        message: "Invitation fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        error: error.message,
-        message: "Internal server error",
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  }
+
+  static async handleGetInvitations(req, res) {
+    try {
+      const invitations = await INVITATION.find({});
+
+      return res.status(200).json({
+        success: true,
+        data: invitations,
+        message: invitations.length === 0 ? "No invitations found." : "Invitations fetched successfully.",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  }
+
+  static async handleRespondToInvitation(req, res) {
+    try {
+      const { acceptance } = req.body;
+
+      if (!acceptance || !ALLOWED_ACCEPTANCE.includes(acceptance)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid acceptance value. Use 'accepted' or 'not accepted'.",
+        });
+      }
+
+      const invitation = await INVITATION.findOneAndUpdate(
+        { InviteId: req.params.id },
+        { $set: { acceptance } },
+        { new: true },
+      );
+
+      if (!invitation) {
+        return res.status(404).json({
+          success: false,
+          message: "Invitation not found. Please check the invite ID.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: invitation,
+        message: "Invitation response submitted successfully.",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
 
   static async handleGetInvitationsByEvent(req, res) {
     try {
-      const eventName = req.params.event;
-      const invitation = await INVITATION.findOne({ event: eventName });
-      if (invitation) {
-        return res.status(200).json({
-          success: true,
-          data: invitation,
-          message: "invitation by event has been successfully fetched",
-        });
-      }
+      const invitation = await INVITATION.findOne({ event: req.params.event });
 
       if (!invitation) {
         return res.status(404).json({
           success: false,
-          error: "event is not valid",
-          message: "invitation by event has not fetched",
+          message: "No invitation found for this event.",
         });
       }
+
+      return res.status(200).json({
+        success: true,
+        data: invitation,
+        message: "Invitation fetched successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        error: error,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
 
   static async handleGetEventChiefGuests(req, res) {
     try {
-      const eventName = req.params.event;
       const chiefguest = await INVITATION.findOne(
-        { event: eventName },
+        { event: req.params.event },
         { chiefGuest: 1 },
       );
-
-      if (chiefguest) {
-        return res.status(200).json({
-          success: true,
-          data: chiefguest,
-          message: "chiefguest has been successfully fetched",
-        });
-      }
 
       if (!chiefguest) {
         return res.status(404).json({
           success: false,
-          error: "chiefguest has not been made",
-          message: "chiefguest has not fetched",
+          message: "No chief guest found for this event.",
         });
       }
+
+      return res.status(200).json({
+        success: true,
+        data: chiefguest,
+        message: "Chief guest fetched successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        error: error,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
 
-  // this is onhold
-
+  // on hold
   static async handleGetInviter(req, res) {
     try {
       const invitation = await INVITATION.findOne({});
-      if (invitation) {
-        return res.status(200).json({
-          success: true,
-          data: invitation,
-          message: "invitation has been successfully fetched",
-        });
-      }
 
       if (!invitation) {
         return res.status(404).json({
           success: false,
-          error: "inviteId is not valid",
-          message: "invitation has not fetched",
+          message: "Inviter not found.",
         });
       }
+
+      return res.status(200).json({
+        success: true,
+        data: invitation,
+        message: "Inviter fetched successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        error: error,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }

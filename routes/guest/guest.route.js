@@ -23,7 +23,7 @@ class GuestRoute {
     );
   }
   Expense() {
-    this.router.use("/expense", UserController.HandleUpdateUser);
+    this.router.use("/expense", UserController.handlePasswordUpdate);
   }
   Gift() {
     this.router.use("/gift", guestGiftRoute);

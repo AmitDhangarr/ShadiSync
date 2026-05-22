@@ -1,183 +1,105 @@
 import EVENT from "../../models/host/event/event.modal.js";
+
+const EVENT_PROJECTION = {
+  eventId: 1,
+  event: 1,
+  eventDate: 1,
+  eventTime: 1,
+  eventVenue: 1,
+  foodItems: 1,
+  photography: 1,
+  status: 1,
+};
+
 class GuestEventController {
   static async HandlegetEvent(req, res) {
     try {
-      const uniqueId = req.params.id;
-      const event = await EVENT.findOne(
-        { eventId: uniqueId },
-        {
-          eventId: 1,
-          event: 1,
-          eventDate: 1,
-          eventTime: 1,
-          eventVenue: 1,
-          foodItems: 1,
-          photography: 1,
-          status: 1,
-        },
-      );
+      const event = await EVENT.findOne({ eventId: req.params.id }, EVENT_PROJECTION);
 
-      if (event) {
-        return res.status(200).json({
-          success: true,
-          data: event,
-          message: "event has been fetched successfully",
-        });
-      } else {
-        return res.status(200).json({
+      if (!event) {
+        return res.status(404).json({
           success: false,
-          error: "eventId is not valid",
-          message: "event has not found",
+          message: "Event not found. Please check the event ID.",
         });
       }
+
+      return res.status(200).json({
+        success: true,
+        data: event,
+        message: "Event fetched successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
 
   static async HandlegetEvents(req, res) {
     try {
-      const events = await EVENT.find(
-        {},
-        {
-          eventId: 1,
-          event: 1,
-          eventDate: 1,
-          eventTime: 1,
-          eventVenue: 1,
-          foodItems: 1,
-          photography: 1,
-          status: 1,
-        },
-      );
+      const events = await EVENT.find({}, EVENT_PROJECTION);
 
-      if (events.length === 0) {
-        return res.status(200).json({
-          success: true,
-          data: [],
-          message: "there is no event yet",
-        });
-      }
       return res.status(200).json({
         success: true,
         data: events,
-        message: "all events have been fetched successfully.",
+        message: events.length === 0 ? "No events found." : "Events fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
 
   static async HandlegetEventUpcoming(req, res) {
     try {
-      const events = await EVENT.find(
-        { status: "upcoming" },
-        {
-          eventId: 1,
-          event: 1,
-          eventDate: 1,
-          eventTime: 1,
-          eventVenue: 1,
-          foodItems: 1,
-          photography: 1,
-          status: 1,
-        },
-      );
+      const events = await EVENT.find({ status: "upcoming" }, EVENT_PROJECTION);
 
-      if (events.length === 0) {
-        return res.status(200).json({
-          success: true,
-          data: [],
-          message: "there is no event yet",
-        });
-      }
       return res.status(200).json({
         success: true,
         data: events,
-        message: "all events have been fetched successfully.",
+        message: events.length === 0 ? "No upcoming events found." : "Upcoming events fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
 
   static async HandlegetEventCompleted(req, res) {
     try {
-      const events = await EVENT.find(
-        { status: "completed" },
-        {
-          eventId: 1,
-          event: 1,
-          eventDate: 1,
-          eventTime: 1,
-          eventVenue: 1,
-          foodItems: 1,
-          photography: 1,
-          status: 1,
-        },
-      );
+      const events = await EVENT.find({ status: "completed" }, EVENT_PROJECTION);
 
-      if (events.length === 0) {
-        return res.status(200).json({
-          success: true,
-          data: [],
-          message: "there is no event yet",
-        });
-      }
       return res.status(200).json({
         success: true,
         data: events,
-        message: "all events have been fetched successfully.",
+        message: events.length === 0 ? "No completed events found." : "Completed events fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
 
   static async HandlegetEventCancelled(req, res) {
     try {
-      const events = await EVENT.find(
-        { status: "cancelled" },
-        {
-          eventId: 1,
-          event: 1,
-          eventDate: 1,
-          eventTime: 1,
-          eventVenue: 1,
-          foodItems: 1,
-          photography: 1,
-          status: 1,
-        },
-      );
+      const events = await EVENT.find({ status: "cancelled" }, EVENT_PROJECTION);
 
-      if (events.length === 0) {
-        return res.status(200).json({
-          success: true,
-          data: [],
-          message: "there is no event yet",
-        });
-      }
       return res.status(200).json({
         success: true,
         data: events,
-        message: "all events have been fetched successfully.",
+        message: events.length === 0 ? "No cancelled events found." : "Cancelled events fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }

@@ -5,7 +5,6 @@ const eventSchemaValidator = (data) => {
   const sanitizedData = {};
 
   const {
-    eventId,
     event,
     eventDate,
     eventTime,
@@ -19,12 +18,6 @@ const eventSchemaValidator = (data) => {
     budget,
     expense,
   } = data;
-
-  if (!eventId || validator.isEmpty(eventId.toString().trim())) {
-    errors.eventId = "Event ID is required";
-  } else {
-    sanitizedData.eventId = validator.escape(eventId.toString().trim());
-  }
 
   if (!event || validator.isEmpty(event.toString().trim())) {
     errors.event = "Event name is required";

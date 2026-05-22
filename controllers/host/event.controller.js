@@ -1,137 +1,116 @@
 import EVENT from "../../models/host/event/event.modal.js";
 import { nanoid } from "nanoid";
+
 class HostEventController {
   static async HandleCreateEvent(req, res) {
     try {
-      const data = req.body;
-      const EventId = nanoid();
       const event = await EVENT.create({
-        eventId: EventId,
-        ...data,
+        eventId: nanoid(),
+        ...req.body,
       });
 
-      if (event) {
-        return res.status(200).json({
-          success: true,
-          message: "event has been created",
-        });
-      } else {
-        return res.status(404).json({
-          success: false,
-          error: "error while creating event",
-          message: "event has been not created",
-        });
-      }
+      return res.status(201).json({
+        success: true,
+        data: event,
+        message: "Event created successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
+
   static async HandleGetEvent(req, res) {
     try {
-      const uniqueId = req.params.id;
-      const event = await EVENT.findOne({ eventId: uniqueId });
+      const event = await EVENT.findOne({ eventId: req.params.id });
 
-      if (event) {
-        return res.status(200).json({
-          success: true,
-          data: event,
-          message: "event has been fetched successfully",
-        });
-      } else {
-        return res.status(200).json({
+      if (!event) {
+        return res.status(404).json({
           success: false,
-          error: "eventId is not valid",
-          message: "event has not found",
+          message: "Event not found. Please check the event ID.",
         });
       }
+
+      return res.status(200).json({
+        success: true,
+        data: event,
+        message: "Event fetched successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
+
   static async HandleGetEvents(req, res) {
     try {
       const events = await EVENT.find({});
 
-      if (events.length === 0) {
-        return res.status(200).json({
-          success: true,
-          data: [],
-          message: "there is no event yet",
-        });
-      }
-      if (events) {
-        return res.status(200).json({
-          success: true,
-          data: events,
-          message: "all events have been fetched successfully.",
-        });
-      } else {
-        return res.status(404).json({
-          success: false,
-          error: "fetch failed",
-          message: "events have not been fetched",
-        });
-      }
+      return res.status(200).json({
+        success: true,
+        data: events,
+        message: events.length === 0 ? "No events found." : "Events fetched successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
+
   static async HandleUpdateEvent(req, res) {
     try {
-      const updatedData = req.body;
-      const uniqueID = req.params?.id;
       const updatedEvent = await EVENT.findOneAndUpdate(
-        { eventId: uniqueID },
-        { $set: updatedData },
+        { eventId: req.params.id },
+        { $set: req.body },
+        { new: true },
       );
-      if (updatedEvent) {
-        return res.status(200).json({
-          success: true,
-          message: "event has been updated",
-        });
-      } else {
+
+      if (!updatedEvent) {
         return res.status(404).json({
           success: false,
-          error: "eventId is not found",
-          message: "event has not updated",
+          message: "Event not found. Please check the event ID.",
         });
       }
+
+      return res.status(200).json({
+        success: true,
+        data: updatedEvent,
+        message: "Event updated successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }
+
   static async HandleDeleteEvent(req, res) {
     try {
-      const uniqueID = req.params?.id;
-      const deletedEvent = await EVENT.findOneAndDelete({ eventId: uniqueID });
-      if (deletedEvent) {
-        return res.status(200).json({
-          success: true,
-          message: "event has been deleted successfully",
-        });
-      } else {
+      const deletedEvent = await EVENT.findOneAndDelete({ eventId: req.params.id });
+
+      if (!deletedEvent) {
         return res.status(404).json({
           success: false,
-          error: "eventId is not found",
-          message: "event has not been deleted",
+          message: "Event not found. Please check the event ID.",
         });
       }
+
+      return res.status(200).json({
+        success: true,
+        data: deletedEvent,
+        message: "Event deleted successfully.",
+      });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: "internal server error",
+        message: "Something went wrong. Please try again later.",
       });
     }
   }

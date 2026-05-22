@@ -12,7 +12,6 @@ class GuestInvitationRoutes {
     this.getInviterDetails();
     this.responsetoInvitation();
     this.getChiefGuest();
-
     this.getInvitationByEvent();
     this.getInvitation();
   }
@@ -47,7 +46,10 @@ class GuestInvitationRoutes {
   }
 
   getInvitation() {
-    this.router.get("/invite/:id", GuestInvitationController.handleGetInvitation);
+    this.router.get(
+      "/invite/:id",
+      GuestInvitationController.handleGetInvitation,
+    );
   }
 }
 
