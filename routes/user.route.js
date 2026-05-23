@@ -8,19 +8,18 @@ class UserRoutes {
   constructor() {
     this.router = Router();
 
-    
     this.login();
     this.createAccount();
     this.forgotPassword();
     this.verifySecurityQuestion();
     this.logOut();
+    this.getSecurityQuestion();
 
     this.updatePassword();
     this.deleteAccount();
     this.editProfile();
     this.getProfile();
   }
-
 
   login() {
     this.router.post(
@@ -39,17 +38,22 @@ class UserRoutes {
   }
 
   forgotPassword() {
-    this.router.post("/forgot_password", UserController.handleForgotPassword);
+    this.router.post(
+      "/forgot_password/:id",
+      UserController.handleForgotPassword,
+    );
   }
 
   verifySecurityQuestion() {
     this.router.post("/verify", UserController.handleVerifySecurityQuestion);
   }
+  getSecurityQuestion() {
+    this.router.get("/verify", UserController.handleGetSecurityQuestion);
+  }
 
   logOut() {
     this.router.post("/logout", UserController.handleLogout);
   }
-
 
   updatePassword() {
     this.router.patch(
@@ -63,11 +67,11 @@ class UserRoutes {
   }
 
   editProfile() {
-    this.router.post("/profile/edit", UserController.handleEditProfile);
+    this.router.post("/profile/edit/:id", UserController.handleEditProfile);
   }
 
   getProfile() {
-    this.router.post("/profile", UserController.handlegetProfile);
+    this.router.get("/profile", UserController.handlegetProfile);
   }
 }
 
