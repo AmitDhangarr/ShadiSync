@@ -85,7 +85,7 @@ class HostExpenseRoutes {
     this.router.get("/budget/:id", ExpenseController.handleGetBudget);
   }
   updateBudget() {
-    this.router.patch("/budget/:id", ExpenseController.handleUpdateBudget);
+    this.router.patch("/budget/event/:event_id/:id", ExpenseController.handleUpdateBudget);
   }
   deleteBudget() {
     this.router.delete("/budget/:id", ExpenseController.handleDeleteBudget);

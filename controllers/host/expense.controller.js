@@ -1,16 +1,77 @@
 import BUDGET from "./../../models/host/expense/buget.modal.js";
 import EXPENSE from "../../models/host/expense/expense.modal.js";
 import PAYMENTS from "../../models/host/expense/payments.modal.js";
+import EVENT from "../../models/host/event/event.modal.js";
 
 class ExpenseController {
-
-  // ── BUDGET ──────────────────────────────────────────────────────────────
-
   static async handleCreateBudget(req, res) {
     try {
+      const {
+        category,
+        subCategory,
+        allocatedAmount,
+        revisedAmount,
+        consumedAmount,
+        remainingAmount,
+        status,
+        notes,
+        approvedBy,
+        approvedAt,
+        createdBy,
+        updatedBy,
+        budgetCode,
+        title,
+        budgetType,
+        functionId,
+        startDate,
+        endDate,
+        isLocked,
+      } = req.body;
+
+      const isEventExists = await EVENT.findById(req.params.event_id);
+
+      if (!isEventExists) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
       const budget = await BUDGET.create({
         eventId: req.params.event_id,
-        ...req.body,
+        category,
+        subCategory,
+        allocatedAmount,
+        revisedAmount,
+        consumedAmount,
+        remainingAmount,
+        status,
+        notes,
+        approvedBy,
+        approvedAt,
+        createdBy,
+        updatedBy,
+        budgetCode,
+        title,
+        budgetType,
+        functionId,
+        startDate,
+        endDate,
+        isLocked,
+      });
+
+      if (!budget) {
+        return res.status(400).json({
+          success: false,
+          message: "Budget could not be created",
+        });
+      }
+
+      await EVENT.findByIdAndUpdate(req.params.event_id, {
+        $inc: {
+          "budgetSummary.totalAllocated": allocatedAmount,
+          "budgetSummary.totalRemaining": allocatedAmount,
+        },
       });
 
       return res.status(201).json({
@@ -19,6 +80,7 @@ class ExpenseController {
         message: "Budget created successfully.",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -33,7 +95,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: budgets,
-        message: budgets.length === 0 ? "No budgets found." : "Budgets fetched successfully.",
+        message:
+          budgets.length === 0
+            ? "No budgets found."
+            : "Budgets fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -70,7 +135,6 @@ class ExpenseController {
   static async handleUpdateBudget(req, res) {
     try {
       const { consumedAmount, status } = req.body;
-
       const allowedStatuses = ["Draft", "Approved", "Closed"];
       const errors = {};
 
@@ -102,6 +166,20 @@ class ExpenseController {
         { new: true },
       );
 
+      if (budget) {
+        const updateEvent = await EVENT.findByIdAndUpdate(req.params.event_id, {
+          $inc: {
+            "budgetSummary.totalConsumed": consumedAmount,
+          },
+        });
+
+        if (!updateEvent) {
+          return res.status(400).json({
+            success: false,
+            message: "something went wrong while updating event",
+          });
+        }
+      }
       if (!budget) {
         return res.status(404).json({
           success: false,
@@ -220,7 +298,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: budgets,
-        message: budgets.length === 0 ? "No approved budgets found." : "Approved budgets fetched successfully.",
+        message:
+          budgets.length === 0
+            ? "No approved budgets found."
+            : "Approved budgets fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -237,7 +318,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: budgets,
-        message: budgets.length === 0 ? "No closed budgets found." : "Closed budgets fetched successfully.",
+        message:
+          budgets.length === 0
+            ? "No closed budgets found."
+            : "Closed budgets fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -254,7 +338,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: budgets,
-        message: budgets.length === 0 ? "No draft budgets found." : "Draft budgets fetched successfully.",
+        message:
+          budgets.length === 0
+            ? "No draft budgets found."
+            : "Draft budgets fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -318,7 +405,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: expenses,
-        message: expenses.length === 0 ? "No expenses found." : "Expenses fetched successfully.",
+        message:
+          expenses.length === 0
+            ? "No expenses found."
+            : "Expenses fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -333,10 +423,14 @@ class ExpenseController {
       const { status, paymentStatus, priority, attachments } = req.body;
       const errors = {};
 
-      if (!status || status.trim() === "") errors.status = "Status is required.";
-      if (!paymentStatus || paymentStatus.trim() === "") errors.paymentStatus = "Payment status is required.";
-      if (!priority || priority.trim() === "") errors.priority = "Priority is required.";
-      if (!attachments || String(attachments).trim() === "") errors.attachments = "Attachments are required.";
+      if (!status || status.trim() === "")
+        errors.status = "Status is required.";
+      if (!paymentStatus || paymentStatus.trim() === "")
+        errors.paymentStatus = "Payment status is required.";
+      if (!priority || priority.trim() === "")
+        errors.priority = "Priority is required.";
+      if (!attachments || String(attachments).trim() === "")
+        errors.attachments = "Attachments are required.";
 
       if (Object.keys(errors).length > 0) {
         return res.status(400).json({
@@ -398,12 +492,17 @@ class ExpenseController {
 
   static async handleGetExpenseByVendor(req, res) {
     try {
-      const expenses = await EXPENSE.find({ "vendor.vendorId": req.params.vendor_id });
+      const expenses = await EXPENSE.find({
+        "vendor.vendorId": req.params.vendor_id,
+      });
 
       return res.status(200).json({
         success: true,
         data: expenses,
-        message: expenses.length === 0 ? "No expenses found for this vendor." : "Vendor expenses fetched successfully.",
+        message:
+          expenses.length === 0
+            ? "No expenses found for this vendor."
+            : "Vendor expenses fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -420,7 +519,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: expenses,
-        message: expenses.length === 0 ? "No expenses found for this event." : "Event expenses fetched successfully.",
+        message:
+          expenses.length === 0
+            ? "No expenses found for this event."
+            : "Event expenses fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -475,7 +577,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: expenses,
-        message: expenses.length === 0 ? "No expenses found for this priority." : "Priority expenses fetched successfully.",
+        message:
+          expenses.length === 0
+            ? "No expenses found for this priority."
+            : "Priority expenses fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -516,7 +621,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: payments,
-        message: payments.length === 0 ? "No payments found." : "Payments fetched successfully.",
+        message:
+          payments.length === 0
+            ? "No payments found."
+            : "Payments fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -528,12 +636,17 @@ class ExpenseController {
 
   static async handleGetPaymentByMethod(req, res) {
     try {
-      const payments = await PAYMENTS.find({ paymentMethod: req.params.method });
+      const payments = await PAYMENTS.find({
+        paymentMethod: req.params.method,
+      });
 
       return res.status(200).json({
         success: true,
         data: payments,
-        message: payments.length === 0 ? "No payments found for this method." : "Payments fetched successfully.",
+        message:
+          payments.length === 0
+            ? "No payments found for this method."
+            : "Payments fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -574,7 +687,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: payments,
-        message: payments.length === 0 ? "No payments found for this vendor." : "Vendor payments fetched successfully.",
+        message:
+          payments.length === 0
+            ? "No payments found for this vendor."
+            : "Vendor payments fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -591,7 +707,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: payments,
-        message: payments.length === 0 ? "No payments found for this status." : "Payments fetched successfully.",
+        message:
+          payments.length === 0
+            ? "No payments found for this status."
+            : "Payments fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -608,7 +727,10 @@ class ExpenseController {
       return res.status(200).json({
         success: true,
         data: payments,
-        message: payments.length === 0 ? "No payments found for this type." : "Payments fetched successfully.",
+        message:
+          payments.length === 0
+            ? "No payments found for this type."
+            : "Payments fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({

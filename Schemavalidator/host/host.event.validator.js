@@ -12,11 +12,9 @@ const eventSchemaValidator = (data) => {
     status,
     guests,
     foodItems,
-    vendors,
     photography,
     decoration,
     budget,
-    expense,
   } = data;
 
   if (!event || validator.isEmpty(event.toString().trim())) {
@@ -70,7 +68,7 @@ const eventSchemaValidator = (data) => {
         errors[`guests[${i}].phone`] = "Guest phone must be numeric";
       }
       return {
-        name: validator.escape(g.name?.toString().trim() || ""),
+        name:  validator.escape(g.name?.toString().trim() || ""),
         phone: g.phone?.toString().trim(),
       };
     });
@@ -104,82 +102,26 @@ const eventSchemaValidator = (data) => {
     });
   }
 
-  if (!Array.isArray(vendors) || vendors.length === 0) {
-    errors.vendors = "At least one vendor is required";
+  if (!photography || typeof photography.included !== "boolean") {
+    errors.photography = "Photography selection is required (true/false)";
   } else {
-    sanitizedData.vendors = vendors.map((v, i) => {
-      if (!v.name || validator.isEmpty(v.name.toString().trim())) {
-        errors[`vendors[${i}].name`] = "Vendor name is required";
-      }
-      if (!v.service || validator.isEmpty(v.service.toString().trim())) {
-        errors[`vendors[${i}].service`] = "Vendor service is required";
-      }
-      if (!v.contact) {
-        errors[`vendors[${i}].contact`] = "Vendor contact is required";
-      }
-      if (!v.address) {
-        errors[`vendors[${i}].address`] = "Vendor address is required";
-      }
-      if (!v.eventName) {
-        errors[`vendors[${i}].eventName`] = "Vendor event name is required";
-      }
-      if (v.totalAmount === undefined || v.totalAmount === null) {
-        errors[`vendors[${i}].totalAmount`] = "Vendor total amount is required";
-      }
-      if (!Array.isArray(v.payments) || v.payments.length === 0) {
-        errors[`vendors[${i}].payments`] = "At least one payment is required per vendor";
-      }
-
-      const payments = (v.payments || []).map((p, j) => {
-        const allowedTypes = [
-          "advance",
-          "partial",
-          "settlement",
-          "refund",
-          "extra_charge",
-          "discount",
-        ];
-
-        if (p.amount === undefined || p.amount === null) {
-          errors[`vendors[${i}].payments[${j}].amount`] = "Payment amount is required";
-        }
-        if (!allowedTypes.includes(p.paymentType)) {
-          errors[`vendors[${i}].payments[${j}].paymentType`] = "Invalid payment type";
-        }
-        if (!p.note || validator.isEmpty(p.note.toString().trim())) {
-          errors[`vendors[${i}].payments[${j}].note`] = "Payment note is required";
-        }
-
-        return {
-          amount: Number(p.amount),
-          paymentType: p.paymentType,
-          paymentDate: p.paymentDate ? new Date(p.paymentDate) : new Date(),
-          note: validator.escape(p.note?.toString().trim() || ""),
-        };
-      });
-
-      return {
-        name: validator.escape(v.name?.toString().trim() || ""),
-        service: validator.escape(v.service?.toString().trim() || ""),
-        contact: v.contact?.toString().trim(),
-        address: validator.escape(v.address?.toString().trim() || ""),
-        eventName: validator.escape(v.eventName?.toString().trim() || ""),
-        totalAmount: Number(v.totalAmount),
-        payments,
-      };
-    });
+    sanitizedData.photography = {
+      included:      photography.included,
+      vendorName:    null,
+      totalAmount:   0,
+      paymentStatus: null,
+    };
   }
 
-  if (typeof photography !== "boolean") {
-    errors.photography = "Photography is required (true/false)";
+  if (!decoration || typeof decoration.included !== "boolean") {
+    errors.decoration = "Decoration selection is required (true/false)";
   } else {
-    sanitizedData.photography = photography;
-  }
-
-  if (typeof decoration !== "boolean") {
-    errors.decoration = "Decoration is required (true/false)";
-  } else {
-    sanitizedData.decoration = decoration;
+    sanitizedData.decoration = {
+      included:      decoration.included,
+      vendorName:    null,
+      totalAmount:   0,
+      paymentStatus: null,
+    };
   }
 
   if (budget === undefined || budget === null) {
@@ -190,14 +132,20 @@ const eventSchemaValidator = (data) => {
     errors.budget = "Budget must be at least 1000";
   } else {
     sanitizedData.budget = Number(budget);
-  }
-
-  if (expense === undefined || expense === null) {
-    errors.expense = "Expense is required";
-  } else if (!validator.isNumeric(expense.toString())) {
-    errors.expense = "Expense must be numeric";
-  } else {
-    sanitizedData.expense = Number(expense);
+    sanitizedData.budgetSummary = {
+      totalAllocated: 0,
+      totalConsumed:  0,
+      totalRemaining: 0,
+      isOverBudget:   false,
+    };
+    sanitizedData.expenseSummary = {
+      totalEstimated: 0,
+      totalActual:    0,
+      totalPaid:      0,
+      totalRemaining: 0,
+      totalTax:       0,
+      totalDiscount:  0,
+    };
   }
 
   return {

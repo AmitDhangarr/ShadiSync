@@ -10,64 +10,6 @@ const FoodItemSchema = new mongoose.Schema({
   category: { type: String, default: "main" },
 });
 
-const PaymentSchema = new mongoose.Schema({
-  amount: {
-    type: Number,
-    required: true,
-  },
-  paymentType: {
-    type: String,
-    enum: [
-      "advance",
-      "partial",
-      "settlement",
-      "refund",
-      "extra_charge",
-      "discount",
-    ],
-    required: true,
-  },
-  paymentDate: {
-    type: Date,
-    default: Date.now,
-  },
-  note: {
-    type: String,
-    required: true,
-  },
-});
-
-const VendorSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-
-  service: {
-    type: String,
-    required: true,
-  },
-
-  contact: {
-    type: String,
-    required: true,
-  },
-
-  address: {
-    type: String,
-    required: true,
-  },
-  eventName: {
-    type: String,
-    required: true,
-  },
-  totalAmount: {
-    type: Number,
-    required: true,
-  },
-  payments: [PaymentSchema],
-});
-
 const EventSchema = new mongoose.Schema(
   {
     eventId: {
@@ -105,28 +47,39 @@ const EventSchema = new mongoose.Schema(
       default: [],
     },
 
-    vendors: {
-      type: [VendorSchema],
-      required: true,
-      default: [],
+    photography: {
+      included: { type: Boolean, default: false },
+      vendorName: { type: String },
+      totalAmount: { type: Number },
+      paymentStatus: { type: String, enum: ["Unpaid", "Partial", "Paid"] },
     },
 
-    photography: {
-      type: Boolean,
-      required: true,
-    },
     decoration: {
-      type: Boolean,
-      required: true,
+      included: { type: Boolean, default: false },
+      vendorName: { type: String },
+      totalAmount: { type: Number },
+      paymentStatus: { type: String, enum: ["Unpaid", "Partial", "Paid"] },
     },
+
     budget: {
       type: Number,
-      min: 1000,
       required: true,
     },
-    expense: {
-      type: Number,
-      required: true,
+
+    budgetSummary: {
+      totalAllocated: { type: Number, default: 0 },
+      totalConsumed: { type: Number, default: 0 },
+      totalRemaining: { type: Number, default: 0 },
+      isOverBudget: { type: Boolean, default: false },
+    },
+
+    expenseSummary: {
+      totalEstimated: { type: Number, default: 0 },
+      totalActual: { type: Number, default: 0 },
+      totalPaid: { type: Number, default: 0 },
+      totalRemaining: { type: Number, default: 0 },
+      totalTax: { type: Number, default: 0 },
+      totalDiscount: { type: Number, default: 0 },
     },
     status: {
       type: String,

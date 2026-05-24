@@ -39,7 +39,7 @@ class UserRoutes {
 
   forgotPassword() {
     this.router.post(
-      "/forgot_password/:id",
+      "/forgot_password/",
       UserController.handleForgotPassword,
     );
   }

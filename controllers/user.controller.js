@@ -177,6 +177,23 @@ class UserController {
   }
   static async handleForgotPassword(req, res) {
     try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: "email is required.",
+        });
+      }
+
+      const isExistUser = await USER.findOne({ email: email });
+
+      if (!isExistUser) {
+        return res.status(400).json({
+          success: false,
+          message: "account does not exits.",
+        });
+      }
       const { password, confirmPassword } = req.body;
 
       if (!password) {
@@ -210,7 +227,7 @@ class UserController {
         });
       }
 
-      const user = await USER.findById(req.params.id);
+      const user = await USER.findOne({email:email});
 
       if (!user) {
         return res.status(404).json({
@@ -289,7 +306,6 @@ class UserController {
         success: true,
         message: "your answer has been matched successfully",
       });
-
     } catch (error) {
       return res.status(400).json({
         success: false,
