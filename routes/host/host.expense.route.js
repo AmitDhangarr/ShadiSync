@@ -141,7 +141,7 @@ class HostExpenseRoutes {
     this.router.delete("/:id", ExpenseController.handleDeleteExpense);
   }
 
-  createPayment() {
+  createPayment() { 
     this.router.post(
       "/payment/:event_id/:expense_id/:vendor_id/",
       ExpenseValidator.HandlePaymentsValidation,

@@ -160,39 +160,48 @@ class ExpenseController {
         });
       }
 
-      const budget = await BUDGET.findByIdAndUpdate(
-        req.params.id,
-        { status, consumedAmount: Number(consumedAmount) },
-        { new: true },
-      );
+      const oldBudget = await BUDGET.findById(req.params.id);
 
-      if (budget) {
-        const updateEvent = await EVENT.findByIdAndUpdate(req.params.event_id, {
-          $inc: {
-            "budgetSummary.totalConsumed": consumedAmount,
-          },
-        });
-
-        if (!updateEvent) {
-          return res.status(400).json({
-            success: false,
-            message: "something went wrong while updating event",
-          });
-        }
-      }
-      if (!budget) {
+      if (!oldBudget) {
         return res.status(404).json({
           success: false,
           message: "Budget not found. Please check the ID.",
         });
       }
 
+      const consumedDiff = Number(consumedAmount) - oldBudget.consumedAmount;
+
+      const updatedBudget = await BUDGET.findByIdAndUpdate(
+        req.params.id,
+        {
+          status,
+          consumedAmount: Number(consumedAmount),
+          remainingAmount: oldBudget.allocatedAmount - Number(consumedAmount),
+        },
+        { new: true },
+      );
+
+      const updateEvent = await EVENT.findByIdAndUpdate(oldBudget.eventId, {
+        $inc: {
+          "budgetSummary.totalConsumed": consumedDiff,
+          "budgetSummary.totalRemaining": -consumedDiff,
+        },
+      });
+
+      if (!updateEvent) {
+        return res.status(400).json({
+          success: false,
+          message: "Something went wrong while updating event.",
+        });
+      }
+
       return res.status(200).json({
         success: true,
-        data: budget,
+        data: updatedBudget,
         message: "Budget updated successfully.",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -355,11 +364,121 @@ class ExpenseController {
 
   static async handleCreateExpense(req, res) {
     try {
+      const {
+        expenseCode,
+        title,
+        description,
+        category,
+        subCategory,
+        vendor,
+        estimatedAmount,
+        actualAmount,
+        taxAmount,
+        discountAmount,
+        totalAmount,
+        paidAmount,
+        status,
+        paymentStatus,
+        priority,
+        expenseDate,
+        bookingDate,
+        dueDate,
+        serviceDate,
+        attachments,
+        requestedBy,
+        approvedBy,
+        approvalDate,
+        remarks,
+      } = req.body;
+
+      const event = await EVENT.findById(req.params.event_id);
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "eventId is not valid",
+        });
+      }
+
+      const budget = await BUDGET.findById(req.params.budget_id);
+
+      if (!budget) {
+        return res.status(400).json({
+          success: false,
+          message: "budgetId is not valid",
+        });
+      }
+
+      const expenseRemainingAmount = totalAmount - paidAmount;
+
       const expense = await EXPENSE.create({
         eventId: req.params.event_id,
-        BudgetId: req.params.budget_id,
-        ...req.body,
+        budgetId: req.params.budget_id,
+        expenseCode,
+        title,
+        description,
+        category,
+        subCategory,
+        vendor,
+        estimatedAmount,
+        actualAmount,
+        taxAmount,
+        discountAmount,
+        totalAmount,
+        paidAmount,
+        remainingAmount: expenseRemainingAmount,
+        status,
+        paymentStatus,
+        priority,
+        expenseDate,
+        bookingDate,
+        dueDate,
+        serviceDate,
+        attachments,
+        requestedBy,
+        approvedBy,
+        approvalDate,
+        remarks,
       });
+
+      const budgetRemainingAmount = budget.allocatedAmount - totalAmount;
+
+      if (expense) {
+        const updateBudget = await BUDGET.findByIdAndUpdate(
+          req.params.budget_id,
+          {
+            $inc: { consumedAmount: totalAmount },
+            $set: { remainingAmount: budgetRemainingAmount },
+          },
+        );
+
+        if (!updateBudget) {
+          return res.status(400).json({
+            success: false,
+            message: "Error while updating the budget.",
+          });
+        }
+
+        const updateEvent = await EVENT.findByIdAndUpdate(req.params.event_id, {
+          $inc: {
+            "budgetSummary.totalConsumed": totalAmount,
+            "budgetSummary.totalRemaining": -totalAmount,
+            "expenseSummary.totalEstimated": estimatedAmount,
+            "expenseSummary.totalActual": totalAmount,
+            "expenseSummary.totalPaid": paidAmount,
+            "expenseSummary.totalRemaining": expenseRemainingAmount,
+            "expenseSummary.totalTax": taxAmount,
+            "expenseSummary.totalDiscount": discountAmount,
+          },
+        });
+
+        if (!updateEvent) {
+          return res.status(400).json({
+            success: false,
+            message: "Error while updating the event.",
+          });
+        }
+      }
 
       return res.status(201).json({
         success: true,
@@ -367,6 +486,7 @@ class ExpenseController {
         message: "Expense created successfully.",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -420,7 +540,14 @@ class ExpenseController {
 
   static async handleUpdateExpense(req, res) {
     try {
-      const { status, paymentStatus, priority, attachments } = req.body;
+      const {
+        status,
+        paymentStatus,
+        priority,
+        attachments,
+        totalAmount,
+        paidAmount,
+      } = req.body;
       const errors = {};
 
       if (!status || status.trim() === "")
@@ -440,18 +567,53 @@ class ExpenseController {
         });
       }
 
-      const expense = await EXPENSE.findByIdAndUpdate(
-        req.params.id,
-        { status, paymentStatus, priority, attachments },
-        { new: true, runValidators: true },
-      );
+      const oldExpense = await EXPENSE.findById(req.params.id);
 
-      if (!expense) {
+      if (!oldExpense) {
         return res.status(404).json({
           success: false,
           message: "Expense not found. Please check the ID.",
         });
       }
+
+      const oldTotal = oldExpense.totalAmount;
+      const oldPaid = oldExpense.paidAmount;
+      const newTotal = totalAmount ?? oldTotal;
+      const newPaid = paidAmount ?? oldPaid;
+      const totalDiff = newTotal - oldTotal;
+      const paidDiff = newPaid - oldPaid;
+      const newRemainingAmount = newTotal - newPaid;
+
+      const expense = await EXPENSE.findByIdAndUpdate(
+        req.params.id,
+        {
+          status,
+          paymentStatus,
+          priority,
+          attachments,
+          totalAmount: newTotal,
+          paidAmount: newPaid,
+          remainingAmount: newRemainingAmount,
+        },
+        { new: true, runValidators: true },
+      );
+
+      await BUDGET.findByIdAndUpdate(oldExpense.budgetId, {
+        $inc: {
+          consumedAmount: totalDiff,
+          remainingAmount: -totalDiff,
+        },
+      });
+
+      await EVENT.findByIdAndUpdate(oldExpense.eventId, {
+        $inc: {
+          "budgetSummary.totalConsumed": totalDiff,
+          "budgetSummary.totalRemaining": -totalDiff,
+          "expenseSummary.totalActual": totalDiff,
+          "expenseSummary.totalPaid": paidDiff,
+          "expenseSummary.totalRemaining": -paidDiff,
+        },
+      });
 
       return res.status(200).json({
         success: true,
@@ -459,6 +621,7 @@ class ExpenseController {
         message: "Expense updated successfully.",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -594,12 +757,107 @@ class ExpenseController {
 
   static async handleCreatePayment(req, res) {
     try {
+      const {
+        paymentCode,
+        amount,
+        paymentType,
+        paymentMethod,
+        transactionReference,
+        paymentDate,
+        status,
+        attachments,
+        notes,
+      } = req.body;
+
+      const isEventExits = await EVENT.findById(req.params.event_id);
+
+      if (!isEventExits) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not found.",
+        });
+      }
+
+      const isExpenseExits = await EXPENSE.findById(req.params.expense_id);
+
+      if (!isExpenseExits) {
+        return res.status(400).json({
+          success: false,
+          message: "Expense does not found.",
+        });
+      }
+
+      const isVendorExits = isExpenseExits.vendor.vendorId;
+
+      if (!isVendorExits) {
+        return res.status(400).json({
+          success: false,
+          message: "Vendor does not exist.",
+        });
+      }
+
       const payment = await PAYMENTS.create({
         eventId: req.params.event_id,
         expenseId: req.params.expense_id,
-        vendorId: req.params.vendor_id,
-        ...req.body,
+        vendorId: isExpenseExits.vendor.vendorId,
+        paymentCode,
+        amount,
+        paymentType,
+        paymentMethod,
+        transactionReference,
+        paymentDate,
+        status,
+        attachments,
+        notes,
       });
+
+      if (!payment) {
+        return res.status(400).json({
+          success: false,
+          message: "Something went wrong while recording payment.",
+        });
+      }
+
+      const newPaidAmount = isExpenseExits.paidAmount + amount;
+      const newRemainingAmount = isExpenseExits.totalAmount - newPaidAmount;
+
+      const updateExpense = await EXPENSE.findByIdAndUpdate(
+        req.params.expense_id,
+        {
+          $inc: { paidAmount: amount },
+          $set: {
+            remainingAmount: newRemainingAmount,
+            paymentStatus:
+              newRemainingAmount <= 0
+                ? "Paid"
+                : newPaidAmount > 0
+                  ? "Partial"
+                  : "Unpaid",
+          },
+        },
+        { new: true },
+      );
+
+      if (!updateExpense) {
+        return res.status(400).json({
+          success: false,
+          message: "Something went wrong while updating expense.",
+        });
+      }
+
+      const updateEvent = await EVENT.findByIdAndUpdate(req.params.event_id, {
+        $inc: {
+          "expenseSummary.totalPaid": amount,
+          "expenseSummary.totalRemaining": -amount,
+        },
+      });
+
+      if (!updateEvent) {
+        return res.status(400).json({
+          success: false,
+          message: "Something went wrong while updating event.",
+        });
+      }
 
       return res.status(201).json({
         success: true,
@@ -607,6 +865,7 @@ class ExpenseController {
         message: "Payment created successfully.",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
