@@ -16,6 +16,8 @@ const InvitationSchemaValidator = (data) => {
     chiefGuest,
     status,
     acceptance,
+    note,
+    receiverNote,
   } = data;
 
   if (!firstName || validator.isEmpty(firstName.toString().trim())) {
@@ -74,11 +76,11 @@ const InvitationSchemaValidator = (data) => {
     sanitizedData.category = validator.escape(category.toString().trim());
   }
 
-  if (chiefGuest && !validator.isEmpty(chiefGuest.toString().trim())) {
+  if (chiefGuest && validator.isBoolean(chiefGuest)) {
     sanitizedData.chiefGuest = validator.escape(chiefGuest.toString().trim());
   }
 
-  const statusEnum = ["invited", "not invited"];
+  const statusEnum = ["invited", "yet to invite"];
 
   if (status && !validator.isEmpty(status.toString().trim())) {
     if (!statusEnum.includes(status.toString().trim())) {

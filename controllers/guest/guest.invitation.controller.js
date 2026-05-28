@@ -46,7 +46,7 @@ class GuestInvitationController {
 
   static async handleRespondToInvitation(req, res) {
     try {
-      const { acceptance } = req.body;
+      const { acceptance,receiverNote } = req.body;
 
       if (!acceptance || !ALLOWED_ACCEPTANCE.includes(acceptance)) {
         return res.status(400).json({
@@ -55,9 +55,17 @@ class GuestInvitationController {
         });
       }
 
+      
+      if (!receiverNote || receiverNote.trim() === " ") {
+        return res.status(400).json({
+          success: false,
+          message: "Note is mandatory",
+        });
+      }
+
       const invitation = await INVITATION.findOneAndUpdate(
         { InviteId: req.params.id },
-        { $set: { acceptance } },
+        { $set: { acceptance ,receiverNote} },
         { new: true },
       );
 

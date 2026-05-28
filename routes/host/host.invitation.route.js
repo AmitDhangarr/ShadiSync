@@ -10,8 +10,11 @@ class HostInvitationRoute {
     this.getInvitation();
     this.deleteInvitation();
     this.updateInvitation();
+    this.invitationTracking();
   }
-
+   invitationTracking(){
+    this.router.get("/tracking",HostInvitationController.HandleInvitationTracking);
+   }
   createInvitation() {
     this.router.post(
       "/",

@@ -1,7 +1,12 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, SchemaType } from "mongoose";
 
 const InvitationSchema = new mongoose.Schema(
   {
+    eventId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      unique: true,
+    },
     InviteId: {
       type: String,
       required: true,
@@ -42,19 +47,24 @@ const InvitationSchema = new mongoose.Schema(
       required: true,
     },
     chiefGuest: {
-      type: String,
+      type: Boolean,
       required: true,
+    },
+    note: {
+      type: String,
     },
     status: {
       type: String,
-      enum: ["invited", "not invited"],
-      default: "not invited",
+      enum: ["invited", "yet to invite"],
+      default: "yet to invite",
     },
-
     acceptance: {
       type: String,
-      enum: ["accepted", "rejected", "pending"],
+      enum: ["accepted", "not accepted", "pending"],
       default: "pending",
+    },
+    receiverNote: {
+      type: String,
     },
   },
   { timestamps: true },

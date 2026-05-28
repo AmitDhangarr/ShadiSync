@@ -53,7 +53,10 @@ class HostInvitationController {
       return res.status(200).json({
         success: true,
         data: invitations,
-        message: invitations.length === 0 ? "No invitations found." : "Invitations fetched successfully.",
+        message:
+          invitations.length === 0
+            ? "No invitations found."
+            : "Invitations fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -93,7 +96,9 @@ class HostInvitationController {
 
   static async HandledeleteInvitation(req, res) {
     try {
-      const invitation = await INVITATION.findOneAndDelete({ InviteId: req.params.id });
+      const invitation = await INVITATION.findOneAndDelete({
+        InviteId: req.params.id,
+      });
 
       if (!invitation) {
         return res.status(404).json({
@@ -106,6 +111,89 @@ class HostInvitationController {
         success: true,
         data: invitation,
         message: "Invitation deleted successfully.",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  }
+  static async HandleInvitationTracking(req, res) {
+    try {
+      const acceptedInvitations = await INVITATION.find(
+        {
+          acceptance: "accepted",
+        },
+        {
+          _id: 1,
+          InviteId: 1,
+          event: 1,
+          acceptance: 1,
+          date: 1,
+          receiverNote: 1,
+        },
+      );
+
+      if (!acceptedInvitations) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "something went wrong ! while fetching the accepted track records",
+        });
+      }
+      const notacceptedInvitations = await INVITATION.find(
+        {
+          acceptance: "not accepted",
+        },
+        {
+          _id: 1,
+          InviteId: 1,
+          event: 1,
+          acceptance: 1,
+          date: 1,
+          receiverNote: 1,
+        },
+      );
+
+      if (!notacceptedInvitations) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "something went wrong ! while fetching the not-accepted track records",
+        });
+      }
+      const pendingacceptance = await INVITATION.find(
+        {
+          acceptance: "pending",
+        },
+        {
+          _id: 1,
+          InviteId: 1,
+          event: 1,
+          acceptance: 1,
+          date: 1,
+          receiverNote: 1,
+        },
+      );
+
+      if (!pendingacceptance) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "something went wrong ! while fetching the pending acceptance track records",
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        data: [
+          {
+            acceptedInvitations: acceptedInvitations,
+            notacceptedInvitations: notacceptedInvitations,
+            pendingInvitation: pendingacceptance,
+          },
+        ],
+        message: "invitation Tracking has been fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
