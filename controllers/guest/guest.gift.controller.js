@@ -16,10 +16,47 @@ const ALLOWED_FIELDS = [
 
 class GuestGiftController {
   static async HandleCreateGiftRegistry(req, res) {
+    const filename = req.file?.filename || "www.image.com";
     try {
+      const {
+        guest_name,
+        guest_family,
+        mobile_number,
+        gift_type,
+        shagun_amount,
+        gift_item_name,
+        gift_description,
+        function_name,
+        payment_mode,
+        transaction_reference,
+        envelope_number,
+        received_by,
+        received_at,
+        photo,
+        notes,
+        thank_you_sent,
+        return_gift_given,
+      } = req.body;
+
       const gift = await GIFT.create({
-        event_id: req.params.eventId,
-        ...req.body,
+        event_id: req.params.event_id,
+        guest_name,
+        guest_family,
+        mobile_number,
+        gift_type,
+        shagun_amount,
+        gift_item_name,
+        gift_description,
+        function_name,
+        payment_mode,
+        transaction_reference,
+        envelope_number,
+        received_by,
+        received_at,
+        photo:filename,
+        notes,
+        thank_you_sent,
+        return_gift_given,
       });
 
       return res.status(201).json({
@@ -28,6 +65,8 @@ class GuestGiftController {
         message: "Gift added successfully.",
       });
     } catch (error) {
+      console.error("Gift creation error:", error);
+
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -66,7 +105,10 @@ class GuestGiftController {
       return res.status(200).json({
         success: true,
         data: gifts,
-        message: gifts.length === 0 ? "No gifts found." : "Gifts fetched successfully.",
+        message:
+          gifts.length === 0
+            ? "No gifts found."
+            : "Gifts fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -88,7 +130,7 @@ class GuestGiftController {
       const updatedGift = await GIFT.findByIdAndUpdate(
         req.params.id,
         filteredUpdates,
-        { new: true }
+        { new: true },
       );
 
       if (!updatedGift) {

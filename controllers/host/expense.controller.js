@@ -360,9 +360,11 @@ class ExpenseController {
     }
   }
 
-  // ── EXPENSE ─────────────────────────────────────────────────────────────
+  // ── EXPENSE ─────────────────
 
   static async handleCreateExpense(req, res) {
+
+    const file = req.file || "none";
     try {
       const {
         expenseCode,
@@ -434,7 +436,11 @@ class ExpenseController {
         bookingDate,
         dueDate,
         serviceDate,
-        attachments,
+        attachments: {
+          type: file.type,
+          fileUrl: file.path,
+          fileName: file.fieldname,
+        },
         requestedBy,
         approvedBy,
         approvalDate,

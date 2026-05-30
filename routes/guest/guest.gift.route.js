@@ -2,6 +2,7 @@
 import { Router } from "express";
 import GuestGiftController from "../../controllers/guest/guest.gift.controller.js";
 import GiftValidator from "../../validator/gift.validator.js";
+import upload from "../../middlewares/upload.middleware.js";
 class GuestGiftRoute {
   router = null;
 
@@ -15,7 +16,7 @@ class GuestGiftRoute {
    
   }
   createGiftRegistry() {
-    this.router.post("/:event_id/",GiftValidator.HandleGiftCreation,GuestGiftController.HandleCreateGiftRegistry);
+    this.router.post("/:event_id/",upload.single("photo"),GiftValidator.HandleGiftCreation,GuestGiftController.HandleCreateGiftRegistry);
   }
   getGiftRegistry() {
     this.router.get("/:id",GuestGiftController.HandlegetGiftRegistry);

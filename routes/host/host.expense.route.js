@@ -1,12 +1,12 @@
 import { Router } from "express";
 import ExpenseController from "../../controllers/host/expense.controller.js";
 import ExpenseValidator from "../../validator/expense.validator.js";
+import upload from "../../middlewares/upload.middleware.js"
 class HostExpenseRoutes {
   router = null;
 
   constructor() {
     this.router = Router();
-
     this.createBudget();
     this.totalBudgetAmount();
     this.categoryWiseBudget();
@@ -94,6 +94,7 @@ class HostExpenseRoutes {
   createExpense() {
     this.router.post(
       "/:event_id/:budget_id/",
+      upload.single("attachment"),
       ExpenseValidator.HandleExpenseValidation,
       ExpenseController.handleCreateExpense,
     );
