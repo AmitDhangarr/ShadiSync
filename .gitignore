@@ -3,4 +3,4 @@ node_modules/
 
 # Local environment variables/secrets
 .env
-
+uploads

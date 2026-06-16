@@ -28,8 +28,8 @@ const userSchema = new Schema(
     role: {
       type: String,
       enum: {
-        values: ["host", "guest"],
-        message: "Role must be either host or guest",
+        values: ["host","cohost","guest"],
+        message: "Role must be either host,co-host or guest",
       },
       required: true,
     },
@@ -52,4 +52,5 @@ userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+
 export const USER = mongoose.model("User", userSchema);

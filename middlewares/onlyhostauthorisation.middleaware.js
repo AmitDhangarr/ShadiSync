@@ -1,9 +1,9 @@
-class UserAuthorisation {
-  static async checkRole(req, res, next) {
+class OnlyHostAccess {
+  static async hostAccess(req, res, next) {
     const {payload} = req.user;
     const role = payload.role;
     
-    if(role === "host" || "cohost") {
+    if(role === "host") {
         next();
     } else {
        res
@@ -17,4 +17,4 @@ class UserAuthorisation {
   }
 }
 
-export default UserAuthorisation;
+export default OnlyHostAccess;
