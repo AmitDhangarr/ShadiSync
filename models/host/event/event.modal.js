@@ -12,6 +12,11 @@ const FoodItemSchema = new mongoose.Schema({
 
 const EventSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     eventId: {
       type: String,
       required: true,

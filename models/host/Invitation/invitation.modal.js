@@ -1,4 +1,4 @@
-import mongoose, { Schema, SchemaType } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const InvitationSchema = new mongoose.Schema(
   {
@@ -70,6 +70,8 @@ const InvitationSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const INVITATION = mongoose.model("Invitation", InvitationSchema);
+const INVITATION =
+  mongoose.models.Invitation ||
+  mongoose.model("Invitation", InvitationSchema);
 
 export default INVITATION;

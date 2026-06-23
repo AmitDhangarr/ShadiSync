@@ -22,8 +22,8 @@ const corsOptions = {
 const ratelimitConfig = {
   windowMs: 5 * 60 * 1000,
   max: (req, res) => {
-    if (req.cookies?.token || req.headers["authorization"]) return 20;
-    return 5;
+    if (req.cookies?.token || req.headers["authorization"]) return 50;
+    return 20;
   },
   standardHeaders: true,
   legacyHeaders: false,

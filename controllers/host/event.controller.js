@@ -6,6 +6,7 @@ class HostEventController {
     try {
       const event = await EVENT.create({
         eventId: nanoid(),
+        userId:req?.user.payload._id,
         ...req.body,
       });
 
@@ -17,6 +18,7 @@ class HostEventController {
     } catch (error) {
       return res.status(500).json({
         success: false,
+        error:error,
         message: "Something went wrong. Please try again later.",
       });
     }
