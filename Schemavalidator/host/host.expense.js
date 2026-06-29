@@ -34,9 +34,11 @@ const allowedAttachmentTypes = [
   "Other",
 ];
 
-export const expenseSchemaValidator = (data) => {
+export const expenseSchemaValidator = ({data:unsantizedData}) => {
   const errors = {};
   const sanitizedData = {};
+
+  const data  = unsantizedData || {};
 
   if (data.eventId) {
     if (!Types.ObjectId.isValid(data.eventId)) {

@@ -176,80 +176,69 @@ class UserController {
     }
   }
   static async handleForgotPassword(req, res) {
-    try {
-      const { email } = req.body;
+  try {
+  const { email, password, confirmPassword } = req.body;
 
-      if (!email) {
-        return res.status(400).json({
-          success: false,
-          message: "email is required.",
-        });
-      }
+  if (!email || email.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      message: "email is required.",
+    });
+  }
 
-      const isExistUser = await USER.findOne({ email: email });
+  const user = await USER.findOne({ email: email.trim() });
+  
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "account does not exits.",
+    });
+  }
 
-      if (!isExistUser) {
-        return res.status(400).json({
-          success: false,
-          message: "account does not exits.",
-        });
-      }
-      const { password, confirmPassword } = req.body;
+  if (!password) {
+    return res.status(400).json({
+      success: false,
+      message: "Password is required.",
+    });
+  }
 
-      if (!password) {
-        return res.status(400).json({
-          success: false,
-          message: "Password is required.",
-        });
-      }
+  if (!confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Confirm password is required.",
+    });
+  }
 
-      if (!confirmPassword) {
-        return res.status(400).json({
-          success: false,
-          message: "Confirm password is required.",
-        });
-      }
+  if (password.trim() !== confirmPassword.trim()) {
+    return res.status(400).json({
+      success: false,
+      message: "Passwords do not match.",
+    });
+  }
 
-      if (password.trim() !== confirmPassword.trim()) {
-        return res.status(400).json({
-          success: false,
-          message: "Passwords do not match.",
-        });
-      }
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
 
-      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
+  if (!passwordRegex.test(password.trim())) {
+    return res.status(400).json({
+      success: false,
+      message: "Password must contain only letters and numbers, with at least one of each.",
+    });
+  }
 
-      if (!passwordRegex.test(password.trim())) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Password must contain only letters and numbers, with at least one of each.",
-        });
-      }
+  user.password = password.trim();
+  await user.save();
 
-      const user = await USER.findOne({email:email});
-
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "User not found.",
-        });
-      }
-
-      user.password = password.trim();
-      await user.save();
-
-      return res.status(200).json({
-        success: true,
-        message: "Password has been updated successfully.",
-      });
-    } catch (error) {
-      console.error("UPDATE PASSWORD ERROR:", error.message);
-      return res.status(500).json({
-        success: false,
-        message: "Something went wrong. Please try again later.",
-      });
-    }
+  return res.status(200).json({
+    success: true,
+    message: "Password has been updated successfully.",
+  });
+} catch (error) {
+  return res.status(500).json({
+    success: false,
+    message: "Something went wrong. Please try again later.",
+  });
+}
+     
   }
   static async handleVerifySecurityQuestion(req, res) {
     try {

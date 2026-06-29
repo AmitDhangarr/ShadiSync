@@ -35,7 +35,7 @@ export const budgetSchemaValidator = (data) => {
     startDate,
     endDate,
     isLocked,
-  } = data;
+  } = data || {};
 
 
   if (!category || validator.isEmpty(category.toString().trim())) {

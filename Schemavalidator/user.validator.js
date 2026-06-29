@@ -3,7 +3,7 @@ import validator from "validator";
 export const userSchemaValidator = (data) => {
   const errors = {};
   const sanitizedData = {};
-  const { name, email, password, phone, role ,securityQuestion,securityAnswer} = data;
+  const { name, email, password, phone, role ,securityQuestion,securityAnswer} = data || {};
 
   // validator for name
   if (!name || validator.isEmpty(name.trim())) {

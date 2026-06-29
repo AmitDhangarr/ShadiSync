@@ -18,7 +18,7 @@ const InvitationSchemaValidator = (data) => {
     acceptance,
     note,
     receiverNote,
-  } = data;
+  } = data || {};
 
   if (!firstName || validator.isEmpty(firstName.toString().trim())) {
     errors.firstName = "First name is required";

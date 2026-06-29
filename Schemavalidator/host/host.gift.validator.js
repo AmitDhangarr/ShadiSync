@@ -36,7 +36,7 @@ export const giftRegistrySchemaValidator = (data) => {
     notes,
     thank_you_sent,
     return_gift_given,
-  } = data;
+  } = data || {};
 
   if (!guest_name || validator.isEmpty(guest_name.toString().trim())) {
     errors.guest_name = "Guest name is required";

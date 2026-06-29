@@ -31,7 +31,7 @@ class UserRoutes {
 
   createAccount() {
     this.router.post(
-      "/signup",
+      "/register",
       UserValidator.ValidateCreateUser,
       UserController.handleCreateAccount,
     );

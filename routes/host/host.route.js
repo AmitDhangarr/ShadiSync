@@ -29,8 +29,9 @@ class HostRoute {
   Gift() {
     this.router.use("/gift", HostGiftRoute);
   }
- Dashboard(){
+  Dashboard(){
   this.router.use("/dashboard", HostDashboardsRoute);
  }
+
 }
 export default new HostRoute().router;

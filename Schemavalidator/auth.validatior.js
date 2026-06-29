@@ -3,7 +3,7 @@ import validator from "validator";
 export const UserAuthenticationSchemaValidator = (data) => {
   const errors = {};
   const sanitizedData = {};
-  const { email, password } = data;
+  const { email, password } = data || {};
 
 
   // validator for email

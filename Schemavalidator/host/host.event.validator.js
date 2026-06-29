@@ -15,7 +15,7 @@ const eventSchemaValidator = (data) => {
     photography,
     decoration,
     budget,
-  } = data;
+  } = data || {};
 
   if (!event || validator.isEmpty(event.toString().trim())) {
     errors.event = "Event name is required";

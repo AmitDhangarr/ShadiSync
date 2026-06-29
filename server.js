@@ -2,6 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import { DBconnection } from "./database/db.js";
 import userRoute from "./routes/user.route.js";
+import rootRoute from "./routes/root.route.js";
+import authRoute from "./routes/auth.route.js";
+import hostrootRoute from "./routes/host/host.root.route.js";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -69,6 +72,11 @@ class StartServer {
       hostRoute,
     );
     this.app.use("/api/v1/guest", AuthMiddleware.AuthUser, GuestRoute);
+
+    // root routes
+    this.app.use("/api/v1/auth/host",hostrootRoute);
+    this.app.use("/api/v1/auth", authRoute);
+    this.app.use("/api/v1/", rootRoute);
   }
   setMongoConnection() {
     const connection = DBconnection(this.connection);

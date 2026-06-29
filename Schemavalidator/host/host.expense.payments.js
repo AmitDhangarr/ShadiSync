@@ -18,7 +18,7 @@ export const paymentSchemaValidator = (data) => {
     transactionReference,
     notes,
     attachments,
-  } = data;
+  } = data || {};
 
   if (!paymentCode || validator.isEmpty(paymentCode.toString().trim())) {
     errors.paymentCode = "Payment code is required";
