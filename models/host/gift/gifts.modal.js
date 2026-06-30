@@ -2,12 +2,17 @@ import mongoose from "mongoose";
 
 const giftRegistrySchema = new mongoose.Schema(
   {
-    event_id: {
-      type: mongoose.Schema.Types.ObjectId,
+    eventId: {
+      type: String,
       ref: "Event",
       required: true,
+      unique: true,
     },
-
+    giftId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     guest_name: {
       type: String,
       required: true,
@@ -84,7 +89,7 @@ const giftRegistrySchema = new mongoose.Schema(
     },
 
     photo: {
-      type: String,
+      type: string,
     },
 
     notes: {
@@ -104,7 +109,7 @@ const giftRegistrySchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const GIFT = mongoose.model("Gift", giftRegistrySchema);

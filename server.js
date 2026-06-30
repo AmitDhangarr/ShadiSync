@@ -5,6 +5,7 @@ import userRoute from "./routes/user.route.js";
 import rootRoute from "./routes/root.route.js";
 import authRoute from "./routes/auth.route.js";
 import hostrootRoute from "./routes/host/host.root.route.js";
+import hostDashboardRoute from "./routes/host/dashboards/dashboard.root.route.js";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -71,12 +72,14 @@ class StartServer {
       UserAuthorisation.checkRole,
       hostRoute,
     );
+    
     this.app.use("/api/v1/guest", AuthMiddleware.AuthUser, GuestRoute);
 
-    // root routes
-    this.app.use("/api/v1/auth/host",hostrootRoute);
-    this.app.use("/api/v1/auth", authRoute);
-    this.app.use("/api/v1/", rootRoute);
+    // fallback routes
+    this.app.get("/api/v1/host/dashboard",hostDashboardRoute);
+    this.app.get("/api/v1/host",hostrootRoute);
+    this.app.get("/api/v1/auth", authRoute);
+    this.app.get("/api/v1/", rootRoute);
   }
   setMongoConnection() {
     const connection = DBconnection(this.connection);

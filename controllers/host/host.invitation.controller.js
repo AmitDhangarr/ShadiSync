@@ -1,13 +1,64 @@
 import { nanoid } from "nanoid";
 import INVITATION from "../../models/host/Invitation/invitation.modal.js";
-
+import EVENT from "../../models/host/event/event.modal.js";
 class HostInvitationController {
+  static async HandleInvitationBasedonEvent(req, res) {
+    try {
+      const events = await EVENT.find(
+        {},
+        { eventId: 1, event: 1, eventDate: 1, status: 1 },
+      );
+
+      if (!events) {
+        return res.status(404).json({
+          success: false,
+          message: "ShaadiSync Invitation Gateway",
+          description: "No events found for invitation",
+          status: "healthy",
+          data: [],
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "ShaadiSync Invitation Gateway",
+        description: "Invitation based on events",
+        status: "healthy",
+        data: events,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        error: error,
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  }
+
   static async HandlecreateInvitation(req, res) {
     try {
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Event not found. Please check the Event ID.",
+        });
+      }
+
       const invite = await INVITATION.create({
+        eventId: id,
         InviteId: nanoid(),
         ...req.body,
       });
+
+      if (!invite) {
+        return res.status(404).json({
+          success: false,
+          message: "Invitation creation failed.",
+        });
+      }
 
       return res.status(201).json({
         success: true,
@@ -17,6 +68,7 @@ class HostInvitationController {
     } catch (error) {
       return res.status(500).json({
         success: false,
+        error: error,
         message: "Something went wrong. Please try again later.",
       });
     }
@@ -24,7 +76,17 @@ class HostInvitationController {
 
   static async HandlegetInvitation(req, res) {
     try {
-      const invitation = await INVITATION.findOne({ InviteId: req.params.id });
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Event not found. Please check the Event ID.",
+        });
+      }
+
+      const invitation = await INVITATION.findOne({ InviteId: req.params.id ,eventId:id });
 
       if (!invitation) {
         return res.status(404).json({
@@ -48,7 +110,17 @@ class HostInvitationController {
 
   static async HandlegetInvitations(req, res) {
     try {
-      const invitations = await INVITATION.find({});
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Event not found. Please check the Event ID.",
+        });
+      }
+
+      const invitations = await INVITATION.find({eventId:id});
 
       return res.status(200).json({
         success: true,
@@ -68,8 +140,18 @@ class HostInvitationController {
 
   static async HandleupdateInvitation(req, res) {
     try {
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Event not found. Please check the Event ID.",
+        });
+      }
+
       const invitation = await INVITATION.findOneAndUpdate(
-        { InviteId: req.params.id },
+        { InviteId: req.params.id,eventId:id },
         { ...req.body },
         { new: true },
       );
@@ -96,6 +178,16 @@ class HostInvitationController {
 
   static async HandledeleteInvitation(req, res) {
     try {
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Event not found. Please check the Event ID.",
+        });
+      }
+
       const invitation = await INVITATION.findOneAndDelete({
         InviteId: req.params.id,
       });
@@ -121,12 +213,23 @@ class HostInvitationController {
   }
   static async HandleInvitationTracking(req, res) {
     try {
+       const id = req.params.eventId
+      const event = await EVENT.findOne({ eventId:id});
+
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          message: "Event not found. Please check the Event ID.",
+        });
+      }
+    
       const acceptedInvitations = await INVITATION.find(
         {
           acceptance: "accepted",
         },
         {
           _id: 1,
+          eventId:1,
           InviteId: 1,
           event: 1,
           acceptance: 1,

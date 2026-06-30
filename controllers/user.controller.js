@@ -163,7 +163,10 @@ class UserController {
           message: "User not found. Please check the ID.",
         });
       }
-
+    
+      //  remove existing cookies
+      res.clearCookie("token");
+      
       return res.status(200).json({
         success: true,
         message: "User deleted successfully.",
@@ -177,7 +180,7 @@ class UserController {
   }
   static async handleForgotPassword(req, res) {
   try {
-  const { email, password, confirmPassword } = req.body;
+  const { email, password, confirmPassword } = req.body || {} ;
 
   if (!email || email.trim() === "") {
     return res.status(400).json({

@@ -61,15 +61,31 @@ const eventSchemaValidator = (data) => {
     errors.guests = "At least one guest is required";
   } else {
     sanitizedData.guests = guests.map((g, i) => {
+      if (!g || typeof g !== "object") {
+        errors[`guests[${i}]`] = "Invalid guest entry";
+        return { name: "", phone: "" };
+      }
+
       if (!g.name || validator.isEmpty(g.name.toString().trim())) {
         errors[`guests[${i}].name`] = "Guest name is required";
       }
-      if (!g.phone || !validator.isNumeric(g.phone.toString())) {
-        errors[`guests[${i}].phone`] = "Guest phone must be numeric";
+
+      let phone = "";
+      if (!g.phone || validator.isEmpty(g.phone.toString().trim())) {
+        errors[`guests[${i}].phone`] = "Guest phone is required";
+      } else {
+        const rawPhone = g.phone.toString().trim();
+        // Accepts optional leading + and digits, e.g. +919876543210 or 9876543210
+        if (!validator.isMobilePhone(rawPhone, "any", { strictMode: false })) {
+          errors[`guests[${i}].phone`] = "Guest phone must be a valid phone number";
+        } else {
+          phone = rawPhone;
+        }
       }
+
       return {
         name:  validator.escape(g.name?.toString().trim() || ""),
-        phone: g.phone?.toString().trim(),
+        phone,
       };
     });
   }
@@ -102,22 +118,22 @@ const eventSchemaValidator = (data) => {
     });
   }
 
-  if (!photography || typeof photography.included !== "boolean") {
+  if (typeof photography !== "boolean") {
     errors.photography = "Photography selection is required (true/false)";
   } else {
     sanitizedData.photography = {
-      included:      photography.included,
+      included:      photography,
       vendorName:    null,
       totalAmount:   0,
       paymentStatus: null,
     };
   }
 
-  if (!decoration || typeof decoration.included !== "boolean") {
+  if (typeof decoration !== "boolean") {
     errors.decoration = "Decoration selection is required (true/false)";
   } else {
     sanitizedData.decoration = {
-      included:      decoration.included,
+      included:      decoration,
       vendorName:    null,
       totalAmount:   0,
       paymentStatus: null,

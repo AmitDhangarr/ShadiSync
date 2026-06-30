@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const InvitationSchema = new mongoose.Schema(
   {
     eventId: {
-      type: Schema.Types.ObjectId,
+      type:String,
       required: true,
       unique: true,
     },

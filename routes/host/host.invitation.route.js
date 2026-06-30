@@ -6,37 +6,42 @@ class HostInvitationRoute {
   constructor() {
     this.router = Router();
     this.createInvitation();
-    this.getInvitations();
     this.getInvitation();
     this.deleteInvitation();
     this.updateInvitation();
     this.invitationTracking();
+    this.getInvitations();
+    this.invitationbasedOnEvent();
+  }
+
+  invitationbasedOnEvent(){
+   this.router.get("/",HostInvitationController.HandleInvitationBasedonEvent);
   }
    invitationTracking(){
-    this.router.get("/tracking",HostInvitationController.HandleInvitationTracking);
+    this.router.get("/:eventId/invitees/tracking",HostInvitationController.HandleInvitationTracking);
    }
   createInvitation() {
     this.router.post(
-      "/",
+      "/:eventId",
       InvitationValidator.ValidateCreateInvitation,
       HostInvitationController.HandlecreateInvitation,
     );
   }
   getInvitation() {
-    this.router.get("/:id", HostInvitationController.HandlegetInvitation);
+    this.router.get("/:eventId/invitee/:id", HostInvitationController.HandlegetInvitation);
   }
   getInvitations() {
-    this.router.get("/", HostInvitationController.HandlegetInvitations);
+    this.router.get("/:eventId/invitees/all", HostInvitationController.HandlegetInvitations);
   }
   updateInvitation() {
     this.router.patch(
-      "/:id",
+      "/:eventId/invitee/:id",
       InvitationValidator.ValidateUpdateInvitation,
       HostInvitationController.HandleupdateInvitation,
     );
   }
   deleteInvitation() {
-    this.router.delete("/:id", HostInvitationController.HandledeleteInvitation);
+    this.router.delete("/:eventId/invitee/:id", HostInvitationController.HandledeleteInvitation);
   }
 }
 

@@ -106,7 +106,7 @@ class HostEventController {
 
       return res.status(200).json({
         success: true,
-        data: deletedEvent,
+        data:deletedEvent.event,
         message: "Event deleted successfully.",
       });
     } catch (error) {
