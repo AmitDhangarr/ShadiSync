@@ -5,16 +5,21 @@ const { Schema, model } = mongoose;
 const expenseSchema = new Schema(
   {
     eventId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Event",
       required: true,
       index: true,
     },
     budgetId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Budget",
+      required: true,
     },
-
+    expenseId: {
+      type: String,
+      required: true,
+      unique:true,
+    },
     expenseCode: {
       type: String,
       unique: true,

@@ -4,6 +4,7 @@ import { DBconnection } from "./database/db.js";
 import userRoute from "./routes/user.route.js";
 import rootRoute from "./routes/root.route.js";
 import authRoute from "./routes/auth.route.js";
+import financialRoute from "./routes/host/expense.root.route.js";
 import hostrootRoute from "./routes/host/host.root.route.js";
 import hostDashboardRoute from "./routes/host/dashboards/dashboard.root.route.js";
 import bodyParser from "body-parser";
@@ -14,6 +15,7 @@ import UserAuthorisation from "./middlewares/authorisation.middleware.js";
 import hostRoute from "./routes/host/host.route.js";
 import GuestRoute from "./routes/guest/guest.route.js";
 import rateLimit from "express-rate-limit";
+
 // cors configuration
 const corsOptions = {
   origin: "*",
@@ -76,6 +78,7 @@ class StartServer {
     this.app.use("/api/v1/guest", AuthMiddleware.AuthUser, GuestRoute);
 
     // fallback routes
+    this.app.get("/api/v1/host/expense",financialRoute);
     this.app.get("/api/v1/host/dashboard",hostDashboardRoute);
     this.app.get("/api/v1/host",hostrootRoute);
     this.app.get("/api/v1/auth", authRoute);

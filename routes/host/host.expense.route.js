@@ -1,7 +1,7 @@
 import { Router } from "express";
 import ExpenseController from "../../controllers/host/expense.controller.js";
 import ExpenseValidator from "../../validator/expense.validator.js";
-import upload from "../../middlewares/upload.middleware.js"
+import upload from "../../middlewares/upload.middleware.js";
 class HostExpenseRoutes {
   router = null;
 
@@ -19,11 +19,11 @@ class HostExpenseRoutes {
     this.updateBudget();
     this.deleteBudget();
 
-    this.getAllExpense();
     this.getExpenseByVendor();
     this.getExpenseByEvent();
     this.getExpenseTotalAmount();
     this.getExpenseAmountPaid();
+    this.getAllExpense();
     this.getExpenseBasedonPriority();
     this.getExpense();
     this.createExpense();
@@ -43,13 +43,16 @@ class HostExpenseRoutes {
 
   createBudget() {
     this.router.post(
-      "/budget/:event_id/",
+      "/budget/:eventId/",
       ExpenseValidator.HandleBugetValidation,
       ExpenseController.handleCreateBudget,
     );
   }
   getAllBudget() {
-    this.router.get("/budget", ExpenseController.handleGetAllBudget);
+    this.router.get(
+      "/budget/:eventId/all",
+      ExpenseController.handleGetAllBudget,
+    );
   }
   totalBudgetAmount() {
     this.router.get(
@@ -65,128 +68,151 @@ class HostExpenseRoutes {
   }
   budgetByEvent() {
     this.router.get(
-      "/budget/event/:event_id",
+      "/budget/event/:eventId",
       ExpenseController.handleBudgetByEvent,
     );
   }
   approvedBudgets() {
     this.router.get(
-      "/budget/approved",
+      "/budget/:eventId/approved",
       ExpenseController.handleApprovedBudgets,
     );
   }
   closedBudget() {
-    this.router.get("/budget/closed", ExpenseController.handleClosedBudget);
+    this.router.get(
+      "/budget/:eventId/closed",
+      ExpenseController.handleClosedBudget,
+    );
   }
   draftedBudget() {
-    this.router.get("/budget/drafted", ExpenseController.handleDraftedBudget);
+    this.router.get(
+      "/budget/:eventId/drafted",
+      ExpenseController.handleDraftedBudget,
+    );
   }
   getBudget() {
-    this.router.get("/budget/:id", ExpenseController.handleGetBudget);
+    this.router.get("/budget/:eventId/:id", ExpenseController.handleGetBudget);
   }
   updateBudget() {
-    this.router.patch("/budget/event/:event_id/:id", ExpenseController.handleUpdateBudget);
+    this.router.patch(
+      "/budget/:eventId/:id",
+      ExpenseController.handleUpdateBudget,
+    );
   }
   deleteBudget() {
-    this.router.delete("/budget/:id", ExpenseController.handleDeleteBudget);
+    this.router.delete(
+      "/budget/:eventId/:id",
+      ExpenseController.handleDeleteBudget,
+    );
   }
 
   createExpense() {
     this.router.post(
-      "/:event_id/:budget_id/",
-      upload.single("attachment"),
+      "/:eventId/:budgetId/",
       ExpenseValidator.HandleExpenseValidation,
       ExpenseController.handleCreateExpense,
     );
   }
   getAllExpense() {
-    this.router.get("/all", ExpenseController.handleGetAllExpense);
+    this.router.get("/:eventId/all", ExpenseController.handleGetAllExpense);
   }
   getExpenseByVendor() {
     this.router.get(
-      "/vendor/:vendor_id",
+      "/:eventId/vendor/:name",
       ExpenseController.handleGetExpenseByVendor,
     );
   }
   getExpenseByEvent() {
     this.router.get(
-      "/event/:event_id",
+      "/event/:eventId/",
       ExpenseController.handleGetExpenseByEvent,
     );
   }
   getExpenseTotalAmount() {
     this.router.get(
-      "/totalAmount",
+      "/:eventId/totalAmount",
       ExpenseController.handleGetExpenseTotalAmount,
     );
   }
   getExpenseAmountPaid() {
     this.router.get(
-      "/amountPaid",
+      "/:eventId/amountPaid",
       ExpenseController.handleGetExpenseAmountPaid,
     );
   }
   getExpenseBasedonPriority() {
     this.router.get(
-      "/priority/:priority",
+      "/:eventId/priority/:priority",
       ExpenseController.handleGetExpenseBasedOnPriority,
     );
   }
   getExpense() {
-    this.router.get("/:id", ExpenseController.handleGetExpense);
+    this.router.get("/:eventId/:id", ExpenseController.handleGetExpense);
   }
   updateExpense() {
-    this.router.patch("/:id", ExpenseController.handleUpdateExpense);
+    this.router.patch("/:eventId/:id", ExpenseController.handleUpdateExpense);
   }
   deleteExpense() {
-    this.router.delete("/:id", ExpenseController.handleDeleteExpense);
+    this.router.delete(
+      "/:eventId/:id",
+      ExpenseController.handleDeleteExpense,
+    );
   }
 
-  createPayment() { 
+  createPayment() {
     this.router.post(
-      "/payment/:event_id/:expense_id/:vendor_id/",
+      "/payment/:eventId/:expenseId/:vendorId/",
       ExpenseValidator.HandlePaymentsValidation,
       ExpenseController.handleCreatePayment,
     );
   }
   getAllPayment() {
-    this.router.get("/payment/all", ExpenseController.handleGetAllPayment);
+    this.router.get(
+      "/payment/:eventId/all",
+      ExpenseController.handleGetAllPayment,
+    );
   }
   getPaymentByMethod() {
     this.router.get(
-      "/payment/method/:method",
+      "/payment/:eventId/method/:method",
       ExpenseController.handleGetPaymentByMethod,
     );
   }
   getPaymentByEvent() {
     this.router.get(
-      "/payment/event/:event_id",
+      "/payment/:eventId",
       ExpenseController.handleGetPaymentByEvent,
     );
   }
   getPaymentByVendor() {
     this.router.get(
-      "/payment/vendor/:vendor_id",
+      "/payment/:eventId/vendor/:vendorId",
       ExpenseController.handleGetPaymentByVendor,
     );
   }
   getPaymentByStatus() {
     this.router.get(
-      "/payment/status/:status",
+      "/payment/:eventId/status/:status",
       ExpenseController.handleGetPaymentByStatus,
     );
   }
   getPaymentByType() {
     this.router.get(
-      "/payment/type/:type",
+      "/payment/:eventId/type/:type",
       ExpenseController.handleGetPaymentByType,
     );
   }
   getPayment() {
-    this.router.get("/payment/:id", ExpenseController.handleGetPayment);
+    this.router.get(
+      "/payment/:eventId/:id",
+      ExpenseController.handleGetPayment,
+    );
   }
   deletePayment() {
-    this.router.delete("/payment/:id", ExpenseController.handleDeletePayment);
+    this.router.delete(
+      "/payment/:eventId/:expenseId/:id",
+      ExpenseController.handleDeletePayment,
+    );
   }
 }
 

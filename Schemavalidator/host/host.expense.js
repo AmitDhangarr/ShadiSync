@@ -1,7 +1,4 @@
 import validator from "validator";
-import mongoose from "mongoose";
-
-const { Types } = mongoose;
 
 const allowedStatuses = [
   "Draft",
@@ -34,105 +31,113 @@ const allowedAttachmentTypes = [
   "Other",
 ];
 
-export const expenseSchemaValidator = ({data:unsantizedData}) => {
+const isValidObjectId = (value) =>
+  typeof value === "string" && /^[a-f\d]{24}$/i.test(value);
+
+const toTrimmedString = (value) =>
+  value === undefined || value === null ? "" : value.toString().trim();
+
+const isBlank = (value) => {
+  const str = toTrimmedString(value);
+  return str === "" || validator.isEmpty(str);
+};
+
+export const expenseSchemaValidator = (data) => {
   const errors = {};
   const sanitizedData = {};
 
-  const data  = unsantizedData || {};
+  const unsantizedData = data || {};
 
-  if (data.eventId) {
-    if (!Types.ObjectId.isValid(data.eventId)) {
+  if (unsantizedData.eventId) {
+    if (!isValidObjectId(unsantizedData.eventId)) {
       errors.eventId = "Invalid Event ID";
     } else {
-      sanitizedData.eventId = data.eventId;
+      sanitizedData.eventId = unsantizedData.eventId;
     }
   }
 
-  if (data.budgetId) {
-    if (!Types.ObjectId.isValid(data.budgetId)) {
+  if (unsantizedData.budgetId) {
+    if (!isValidObjectId(unsantizedData.budgetId)) {
       errors.budgetId = "Invalid Budget ID";
     } else {
-      sanitizedData.budgetId = data.budgetId;
+      sanitizedData.budgetId = unsantizedData.budgetId;
     }
   }
 
-  if (!data.expenseCode || validator.isEmpty(data.expenseCode.toString().trim())) {
+  if (isBlank(unsantizedData.expenseCode)) {
     errors.expenseCode = "Expense code is required";
   } else {
-    sanitizedData.expenseCode = validator.escape(data.expenseCode.toString().trim());
+    sanitizedData.expenseCode = validator.escape(toTrimmedString(unsantizedData.expenseCode));
   }
 
-  if (!data.title || validator.isEmpty(data.title.toString().trim())) {
+  if (isBlank(unsantizedData.title)) {
     errors.title = "Title is required";
   } else {
-    sanitizedData.title = validator.escape(data.title.toString().trim());
+    sanitizedData.title = validator.escape(toTrimmedString(unsantizedData.title));
   }
 
-  if (!data.description || validator.isEmpty(data.description.toString().trim())) {
+  if (isBlank(unsantizedData.description)) {
     errors.description = "Description is required";
   } else {
-    sanitizedData.description = validator.escape(data.description.toString().trim());
+    sanitizedData.description = validator.escape(toTrimmedString(unsantizedData.description));
   }
 
-  if (!data.category || validator.isEmpty(data.category.toString().trim())) {
+  if (isBlank(unsantizedData.category)) {
     errors.category = "Category is required";
   } else {
-    sanitizedData.category = validator.escape(data.category.toString().trim());
+    sanitizedData.category = validator.escape(toTrimmedString(unsantizedData.category));
   }
 
-  if (!data.subCategory || validator.isEmpty(data.subCategory.toString().trim())) {
+  if (isBlank(unsantizedData.subCategory)) {
     errors.subCategory = "SubCategory is required";
   } else {
-    sanitizedData.subCategory = validator.escape(data.subCategory.toString().trim());
+    sanitizedData.subCategory = validator.escape(toTrimmedString(unsantizedData.subCategory));
   }
 
-  if (!data.vendor || typeof data.vendor !== "object") {
+  if (!unsantizedData.vendor || typeof unsantizedData.vendor !== "object") {
     errors.vendor = "Vendor is required";
   } else {
+    const vendor = unsantizedData.vendor;
     sanitizedData.vendor = {};
 
-    if (!data.vendor.vendorId) {
+    if (!vendor.vendorId) {
       errors.vendorId = "Vendor ID is required";
-    } else if (!Types.ObjectId.isValid(data.vendor.vendorId)) {
+    } else if (!isValidObjectId(vendor.vendorId)) {
       errors.vendorId = "Invalid Vendor ID";
     } else {
-      sanitizedData.vendor.vendorId = data.vendor.vendorId;
+      sanitizedData.vendor.vendorId = vendor.vendorId;
     }
 
-    if (!data.vendor.name || validator.isEmpty(data.vendor.name.toString().trim())) {
+    if (isBlank(vendor.name)) {
       errors.vendorName = "Vendor name is required";
     } else {
-      sanitizedData.vendor.name = validator.escape(data.vendor.name.toString().trim());
+      sanitizedData.vendor.name = validator.escape(toTrimmedString(vendor.name));
     }
 
-    if (!data.vendor.contactPerson || validator.isEmpty(data.vendor.contactPerson.toString().trim())) {
+    if (isBlank(vendor.contactPerson)) {
       errors.contactPerson = "Contact person is required";
     } else {
-      sanitizedData.vendor.contactPerson = validator.escape(
-        data.vendor.contactPerson.toString().trim()
-      );
+      sanitizedData.vendor.contactPerson = validator.escape(toTrimmedString(vendor.contactPerson));
     }
 
-    if (!data.vendor.phone || validator.isEmpty(data.vendor.phone.toString().trim())) {
+    if (isBlank(vendor.phone)) {
       errors.vendorPhone = "Vendor phone is required";
     } else {
-      sanitizedData.vendor.phone = data.vendor.phone.toString().trim();
+      sanitizedData.vendor.phone = toTrimmedString(vendor.phone);
     }
 
-    if (!data.vendor.email || validator.isEmpty(data.vendor.email.toString().trim())) {
+    if (isBlank(vendor.email)) {
       errors.vendorEmail = "Vendor email is required";
-    } else if (!validator.isEmail(data.vendor.email.toString().trim())) {
+    } else if (!validator.isEmail(toTrimmedString(vendor.email))) {
       errors.vendorEmail = "Invalid vendor email";
     } else {
-      sanitizedData.vendor.email = data.vendor.email.toString().trim();
+      sanitizedData.vendor.email = toTrimmedString(vendor.email);
     }
 
-    if (!data.vendor.gstNumber || validator.isEmpty(data.vendor.gstNumber.toString().trim())) {
+    if (isBlank(vendor.gstNumber)) {
       errors.vendorGstNumber = "Vendor GST number is required";
     } else {
-      sanitizedData.vendor.gstNumber = validator.escape(
-        data.vendor.gstNumber.toString().trim()
-      );
+      sanitizedData.vendor.gstNumber = validator.escape(toTrimmedString(vendor.gstNumber));
     }
   }
 
@@ -147,7 +152,7 @@ export const expenseSchemaValidator = ({data:unsantizedData}) => {
   ];
 
   numericFields.forEach((field) => {
-    const value = data[field];
+    const value = unsantizedData[field];
 
     if (value === undefined || value === null || value === "") {
       errors[field] = `${field} is required`;
@@ -158,28 +163,28 @@ export const expenseSchemaValidator = ({data:unsantizedData}) => {
     }
   });
 
-  if (!data.status) {
+  if (!unsantizedData.status) {
     errors.status = "Status is required";
-  } else if (!allowedStatuses.includes(data.status)) {
+  } else if (!allowedStatuses.includes(unsantizedData.status)) {
     errors.status = "Invalid status";
   } else {
-    sanitizedData.status = data.status;
+    sanitizedData.status = unsantizedData.status;
   }
 
-  if (!data.paymentStatus) {
+  if (!unsantizedData.paymentStatus) {
     errors.paymentStatus = "Payment status is required";
-  } else if (!allowedPaymentStatuses.includes(data.paymentStatus)) {
+  } else if (!allowedPaymentStatuses.includes(unsantizedData.paymentStatus)) {
     errors.paymentStatus = "Invalid payment status";
   } else {
-    sanitizedData.paymentStatus = data.paymentStatus;
+    sanitizedData.paymentStatus = unsantizedData.paymentStatus;
   }
 
-  if (!data.priority) {
+  if (!unsantizedData.priority) {
     errors.priority = "Priority is required";
-  } else if (!allowedPriorities.includes(data.priority)) {
+  } else if (!allowedPriorities.includes(unsantizedData.priority)) {
     errors.priority = "Invalid priority";
   } else {
-    sanitizedData.priority = data.priority;
+    sanitizedData.priority = unsantizedData.priority;
   }
 
   const dateFields = [
@@ -191,7 +196,7 @@ export const expenseSchemaValidator = ({data:unsantizedData}) => {
   ];
 
   dateFields.forEach((field) => {
-    const value = data[field];
+    const value = unsantizedData[field];
 
     if (!value) {
       errors[field] = `${field} is required`;
@@ -202,28 +207,34 @@ export const expenseSchemaValidator = ({data:unsantizedData}) => {
     }
   });
 
-  if (!data.attachments || !Array.isArray(data.attachments)) {
+  if (!unsantizedData.attachments || !Array.isArray(unsantizedData.attachments)) {
     errors.attachments = "Attachments are required";
   } else {
-    sanitizedData.attachments = data.attachments.map((a, i) => {
-      if (!a.type) {
+    sanitizedData.attachments = unsantizedData.attachments.map((a, i) => {
+      const attachment = a || {};
+
+      if (!attachment.type) {
         errors[`attachments[${i}].type`] = "Attachment type is required";
-      } else if (!allowedAttachmentTypes.includes(a.type)) {
+      } else if (!allowedAttachmentTypes.includes(attachment.type)) {
         errors[`attachments[${i}].type`] = "Invalid attachment type";
       }
 
-      if (!a.fileUrl) {
+      if (isBlank(attachment.fileUrl)) {
         errors[`attachments[${i}].fileUrl`] = "File URL is required";
       }
 
-      if (!a.fileName) {
+      if (isBlank(attachment.fileName)) {
         errors[`attachments[${i}].fileName`] = "File name is required";
       }
 
       return {
-        type: a.type,
-        fileUrl: a.fileUrl,
-        fileName: validator.escape(a.fileName.toString().trim()),
+        type: allowedAttachmentTypes.includes(attachment.type) ? attachment.type : undefined,
+        fileUrl: !isBlank(attachment.fileUrl)
+          ? validator.escape(toTrimmedString(attachment.fileUrl))
+          : undefined,
+        fileName: !isBlank(attachment.fileName)
+          ? validator.escape(toTrimmedString(attachment.fileName))
+          : undefined,
       };
     });
   }
@@ -236,27 +247,27 @@ export const expenseSchemaValidator = ({data:unsantizedData}) => {
   ];
 
   objectIdFields.forEach((field) => {
-    const value = data[field];
+    const value = unsantizedData[field];
 
     if (!value) {
       errors[field] = `${field} is required`;
-    } else if (!Types.ObjectId.isValid(value)) {
+    } else if (!isValidObjectId(value)) {
       errors[field] = `Invalid ${field}`;
     } else {
       sanitizedData[field] = value;
     }
   });
 
-  if (!data.remarks || validator.isEmpty(data.remarks.toString().trim())) {
+  if (isBlank(unsantizedData.remarks)) {
     errors.remarks = "Remarks is required";
   } else {
-    sanitizedData.remarks = validator.escape(data.remarks.toString().trim());
+    sanitizedData.remarks = validator.escape(toTrimmedString(unsantizedData.remarks));
   }
 
-  if (data.isDeleted === undefined) {
+  if (unsantizedData.isDeleted === undefined) {
     errors.isDeleted = "isDeleted is required";
   } else {
-    sanitizedData.isDeleted = Boolean(data.isDeleted);
+    sanitizedData.isDeleted = Boolean(unsantizedData.isDeleted);
   }
 
   return {

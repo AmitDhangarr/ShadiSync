@@ -1,4 +1,3 @@
-
 import { Router } from "express";
 import GuestGiftController from "../../controllers/guest/guest.gift.controller.js";
 import GiftValidator from "../../validator/gift.validator.js";
@@ -9,26 +8,43 @@ class GuestGiftRoute {
   constructor() {
     this.router = Router();
     this.createGiftRegistry();
-    this.getAllGiftRegistry();
-    this.getGiftRegistry();
     this.updateGiftRegistry();
     this.deleteGiftRegistry();
-   
+    this.getAllGiftRegistry();
+    this.getGiftRegistry();
+    this.giftregisteryAsperEvent();
   }
   createGiftRegistry() {
-    this.router.post("/:event_id/",upload.single("photo"),GiftValidator.HandleGiftCreation,GuestGiftController.HandleCreateGiftRegistry);
+    this.router.post(
+      "/:eventId/register",
+      GiftValidator.HandleGiftCreation,
+      GuestGiftController.HandleCreateGiftRegistry,
+    );
   }
   getGiftRegistry() {
-    this.router.get("/:id",GuestGiftController.HandlegetGiftRegistry);
+    this.router.get("/:eventId/:id", GuestGiftController.HandlegetGiftRegistry);
   }
   getAllGiftRegistry() {
-    this.router.get("/all",GuestGiftController.HandlegetAllGiftRegistry);
+    this.router.get(
+      "/:eventId/all",
+      GuestGiftController.HandlegetAllGiftRegistry,
+    );
   }
   updateGiftRegistry() {
-    this.router.patch("/:id",GiftValidator.HandleGiftUpdation,GuestGiftController.HandleupdateGiftRegistry);
+    this.router.patch(
+      "/:eventId/:id",
+      GiftValidator.HandleGiftUpdation,
+      GuestGiftController.HandleupdateGiftRegistry,
+    );
   }
   deleteGiftRegistry() {
-    this.router.delete("/:id",GuestGiftController.HandledeleteGiftRegistry);
+    this.router.delete(
+      "/:eventId/:id",
+      GuestGiftController.HandledeleteGiftRegistry,
+    );
+  }
+  giftregisteryAsperEvent() {
+    this.router.get("/", GuestGiftController.HandleGiftRegistryAsperEvent);
   }
 }
 

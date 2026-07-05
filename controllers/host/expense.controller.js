@@ -2,10 +2,11 @@ import BUDGET from "./../../models/host/expense/buget.modal.js";
 import EXPENSE from "../../models/host/expense/expense.modal.js";
 import PAYMENTS from "../../models/host/expense/payments.modal.js";
 import EVENT from "../../models/host/event/event.modal.js";
-
+import { nanoid } from "nanoid";
 class ExpenseController {
   static async handleCreateBudget(req, res) {
     try {
+      const id = req.params.eventId;
       const {
         category,
         subCategory,
@@ -28,9 +29,9 @@ class ExpenseController {
         isLocked,
       } = req.body;
 
-      const isEventExists = await EVENT.findById(req.params.event_id);
+      const event = await EVENT.findOne({ eventId: id });
 
-      if (!isEventExists) {
+      if (!event) {
         return res.status(400).json({
           success: false,
           message: "Event does not exist, create event first",
@@ -38,7 +39,8 @@ class ExpenseController {
       }
 
       const budget = await BUDGET.create({
-        eventId: req.params.event_id,
+        eventId: id,
+        budgetId: nanoid(),
         category,
         subCategory,
         allocatedAmount,
@@ -67,7 +69,7 @@ class ExpenseController {
         });
       }
 
-      await EVENT.findByIdAndUpdate(req.params.event_id, {
+      await EVENT.findByIdAndUpdate(event._id, {
         $inc: {
           "budgetSummary.totalAllocated": allocatedAmount,
           "budgetSummary.totalRemaining": allocatedAmount,
@@ -90,6 +92,16 @@ class ExpenseController {
 
   static async handleGetAllBudget(req, res) {
     try {
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
       const budgets = await BUDGET.find({});
 
       return res.status(200).json({
@@ -110,7 +122,17 @@ class ExpenseController {
 
   static async handleGetBudget(req, res) {
     try {
-      const budget = await BUDGET.findById(req.params.id);
+      const id = req.params.eventId;
+      const budgetId = req.params.id;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+      const budget = await BUDGET.findOne({ budgetId: budgetId });
 
       if (!budget) {
         return res.status(404).json({
@@ -134,6 +156,27 @@ class ExpenseController {
 
   static async handleUpdateBudget(req, res) {
     try {
+      const id = req.params.eventId;
+      const budgetId = req.params.id;
+
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
+      const budget = await BUDGET.findOne({ budgetId: budgetId });
+
+      if (!budget) {
+        return res.status(404).json({
+          success: false,
+          message: "Budget not found. Please check the ID.",
+        });
+      }
+
       const { consumedAmount, status } = req.body;
       const allowedStatuses = ["Draft", "Approved", "Closed"];
       const errors = {};
@@ -160,7 +203,7 @@ class ExpenseController {
         });
       }
 
-      const oldBudget = await BUDGET.findById(req.params.id);
+      const oldBudget = await BUDGET.findById(budget._id);
 
       if (!oldBudget) {
         return res.status(404).json({
@@ -171,17 +214,13 @@ class ExpenseController {
 
       const consumedDiff = Number(consumedAmount) - oldBudget.consumedAmount;
 
-      const updatedBudget = await BUDGET.findByIdAndUpdate(
-        req.params.id,
-        {
-          status,
-          consumedAmount: Number(consumedAmount),
-          remainingAmount: oldBudget.allocatedAmount - Number(consumedAmount),
-        },
-        { new: true },
-      );
+      const updatedBudget = await BUDGET.findByIdAndUpdate(budget._id, {
+        status,
+        consumedAmount: Number(consumedAmount),
+        remainingAmount: oldBudget.allocatedAmount - Number(consumedAmount),
+      });
 
-      const updateEvent = await EVENT.findByIdAndUpdate(oldBudget.eventId, {
+      const updateEvent = await EVENT.findByIdAndUpdate(event._id, {
         $inc: {
           "budgetSummary.totalConsumed": consumedDiff,
           "budgetSummary.totalRemaining": -consumedDiff,
@@ -211,9 +250,30 @@ class ExpenseController {
 
   static async handleDeleteBudget(req, res) {
     try {
-      const budget = await BUDGET.findByIdAndDelete(req.params.id);
+      const id = req.params.eventId;
+      const budgetId = req.params.id;
+
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
+      const budget = await BUDGET.findOne({ budgetId: budgetId });
 
       if (!budget) {
+        return res.status(404).json({
+          success: false,
+          message: "Budget not found. Please check the ID.",
+        });
+      }
+
+      const deletedBudget = await BUDGET.findByIdAndDelete(budget._id);
+
+      if (!deletedBudget) {
         return res.status(404).json({
           success: false,
           message: "Budget not found. Please check the ID.",
@@ -238,7 +298,12 @@ class ExpenseController {
       const totalBudget = await BUDGET.aggregate([
         { $group: { _id: null, totalBudget: { $sum: "$revisedAmount" } } },
       ]);
-
+      if (!totalBudget) {
+        return res.status(404).json({
+          success: false,
+          message: "Total budgetamount is not fetched successfully.",
+        });
+      }
       return res.status(200).json({
         success: true,
         data: totalBudget,
@@ -278,7 +343,17 @@ class ExpenseController {
 
   static async handleBudgetByEvent(req, res) {
     try {
-      const budget = await BUDGET.findOne({ eventId: req.params.event_id });
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: req.params.eventId });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
+      const budget = await BUDGET.findOne({ eventId: id });
 
       if (!budget) {
         return res.status(404).json({
@@ -302,7 +377,17 @@ class ExpenseController {
 
   static async handleApprovedBudgets(req, res) {
     try {
-      const budgets = await BUDGET.find({ status: "Approved" });
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
+      const budgets = await BUDGET.find({ eventId: id, status: "Approved" });
 
       return res.status(200).json({
         success: true,
@@ -322,7 +407,17 @@ class ExpenseController {
 
   static async handleClosedBudget(req, res) {
     try {
-      const budgets = await BUDGET.find({ status: "Closed" });
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
+      const budgets = await BUDGET.find({ eventId: id, status: "Closed" });
 
       return res.status(200).json({
         success: true,
@@ -342,7 +437,16 @@ class ExpenseController {
 
   static async handleDraftedBudget(req, res) {
     try {
-      const budgets = await BUDGET.find({ status: "Draft" });
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+      const budgets = await BUDGET.find({ eventId: id, status: "Draft" });
 
       return res.status(200).json({
         success: true,
@@ -360,10 +464,7 @@ class ExpenseController {
     }
   }
 
-  // ── EXPENSE ─────────────────
-
   static async handleCreateExpense(req, res) {
-
     const file = req.file || "none";
     try {
       const {
@@ -393,16 +494,18 @@ class ExpenseController {
         remarks,
       } = req.body;
 
-      const event = await EVENT.findById(req.params.event_id);
+      const id = req.params.eventId;
+      const budgetId = req.params.budgetId;
+      const event = await EVENT.findOne({ eventId: id });
 
       if (!event) {
         return res.status(400).json({
           success: false,
-          message: "eventId is not valid",
+          message: "Event does not exist, create event first",
         });
       }
 
-      const budget = await BUDGET.findById(req.params.budget_id);
+      const budget = await BUDGET.findOne({ budgetId: budgetId });
 
       if (!budget) {
         return res.status(400).json({
@@ -414,8 +517,9 @@ class ExpenseController {
       const expenseRemainingAmount = totalAmount - paidAmount;
 
       const expense = await EXPENSE.create({
-        eventId: req.params.event_id,
-        budgetId: req.params.budget_id,
+        eventId: req.params.eventId,
+        budgetId: req.params.budgetId,
+        expenseId: nanoid(),
         expenseCode,
         title,
         description,
@@ -450,13 +554,10 @@ class ExpenseController {
       const budgetRemainingAmount = budget.allocatedAmount - totalAmount;
 
       if (expense) {
-        const updateBudget = await BUDGET.findByIdAndUpdate(
-          req.params.budget_id,
-          {
-            $inc: { consumedAmount: totalAmount },
-            $set: { remainingAmount: budgetRemainingAmount },
-          },
-        );
+        const updateBudget = await BUDGET.findByIdAndUpdate(budget._id, {
+          $inc: { consumedAmount: totalAmount },
+          $set: { remainingAmount: budgetRemainingAmount },
+        });
 
         if (!updateBudget) {
           return res.status(400).json({
@@ -465,7 +566,7 @@ class ExpenseController {
           });
         }
 
-        const updateEvent = await EVENT.findByIdAndUpdate(req.params.event_id, {
+        const updateEvent = await EVENT.findByIdAndUpdate(event._id, {
           $inc: {
             "budgetSummary.totalConsumed": totalAmount,
             "budgetSummary.totalRemaining": -totalAmount,
@@ -502,7 +603,27 @@ class ExpenseController {
 
   static async handleGetExpense(req, res) {
     try {
-      const expense = await EXPENSE.findById(req.params.id);
+      const id = req.params.eventId;
+
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
+      const Expense = await EXPENSE.findOne({ eventId: id });
+
+      if (!Expense) {
+        return res.status(400).json({
+          success: false,
+          message: "Expense does not exist, register expense first",
+        });
+      }
+
+      const expense = await EXPENSE.findById(Expense._id);
 
       if (!expense) {
         return res.status(404).json({
@@ -526,6 +647,16 @@ class ExpenseController {
 
   static async handleGetAllExpense(req, res) {
     try {
+      const id = req.params.eventId;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
       const expenses = await EXPENSE.find({});
 
       return res.status(200).json({
@@ -546,6 +677,17 @@ class ExpenseController {
 
   static async handleUpdateExpense(req, res) {
     try {
+      const id = req.params.eventId;
+      const expenseId = req.params.id;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
       const {
         status,
         paymentStatus,
@@ -553,7 +695,8 @@ class ExpenseController {
         attachments,
         totalAmount,
         paidAmount,
-      } = req.body;
+      } = req.body || {};
+
       const errors = {};
 
       if (!status || status.trim() === "")
@@ -573,7 +716,7 @@ class ExpenseController {
         });
       }
 
-      const oldExpense = await EXPENSE.findById(req.params.id);
+      const oldExpense = await EXPENSE.findOne({ expenseId: expenseId });
 
       if (!oldExpense) {
         return res.status(404).json({
@@ -590,28 +733,24 @@ class ExpenseController {
       const paidDiff = newPaid - oldPaid;
       const newRemainingAmount = newTotal - newPaid;
 
-      const expense = await EXPENSE.findByIdAndUpdate(
-        req.params.id,
-        {
-          status,
-          paymentStatus,
-          priority,
-          attachments,
-          totalAmount: newTotal,
-          paidAmount: newPaid,
-          remainingAmount: newRemainingAmount,
-        },
-        { new: true, runValidators: true },
-      );
+      const expense = await EXPENSE.findByIdAndUpdate(oldExpense._id, {
+        status,
+        paymentStatus,
+        priority,
+        attachments,
+        totalAmount: newTotal,
+        paidAmount: newPaid,
+        remainingAmount: newRemainingAmount,
+      });
 
-      await BUDGET.findByIdAndUpdate(oldExpense.budgetId, {
+      await BUDGET.findByIdAndUpdate(oldExpense._id, {
         $inc: {
           consumedAmount: totalDiff,
           remainingAmount: -totalDiff,
         },
       });
 
-      await EVENT.findByIdAndUpdate(oldExpense.eventId, {
+      await EVENT.findByIdAndUpdate(event._id, {
         $inc: {
           "budgetSummary.totalConsumed": totalDiff,
           "budgetSummary.totalRemaining": -totalDiff,
@@ -637,9 +776,30 @@ class ExpenseController {
 
   static async handleDeleteExpense(req, res) {
     try {
-      const expense = await EXPENSE.findByIdAndDelete(req.params.id);
+      const id = req.params.eventId;
+      const expenseId = req.params.id;
+      
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
+      const expense = await EXPENSE.findOne({ expenseId: expenseId });
 
       if (!expense) {
+        return res.status(400).json({
+          success: false,
+          message: "expense does not exist",
+        });
+      }
+
+      const deletedExpense = await EXPENSE.findByIdAndDelete(expense._id);
+
+      if (!deletedExpense) {
         return res.status(404).json({
           success: false,
           message: "Expense not found. Please check the ID.",
@@ -648,10 +808,11 @@ class ExpenseController {
 
       return res.status(200).json({
         success: true,
-        data: expense,
+        data: deletedExpense,
         message: "Expense deleted successfully.",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -661,8 +822,19 @@ class ExpenseController {
 
   static async handleGetExpenseByVendor(req, res) {
     try {
+      const id = req.params.eventId;
+      const name = req.params.name;
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
       const expenses = await EXPENSE.find({
-        "vendor.vendorId": req.params.vendor_id,
+        "vendor.contactPerson": req.params.name,
       });
 
       return res.status(200).json({
@@ -683,7 +855,18 @@ class ExpenseController {
 
   static async handleGetExpenseByEvent(req, res) {
     try {
-      const expenses = await EXPENSE.find({ eventId: req.params.event_id });
+      const id = req.params.eventId;
+
+      const event = await EVENT.findOne({ eventId: id });
+
+      if (!event) {
+        return res.status(400).json({
+          success: false,
+          message: "Event does not exist, create event first",
+        });
+      }
+
+      const expenses = await EXPENSE.find({ eventId: id });
 
       return res.status(200).json({
         success: true,
@@ -775,7 +958,7 @@ class ExpenseController {
         notes,
       } = req.body;
 
-      const isEventExits = await EVENT.findById(req.params.event_id);
+      const isEventExits = await EVENT.findById(req.params.eventId);
 
       if (!isEventExits) {
         return res.status(400).json({
@@ -784,7 +967,7 @@ class ExpenseController {
         });
       }
 
-      const isExpenseExits = await EXPENSE.findById(req.params.expense_id);
+      const isExpenseExits = await EXPENSE.findById(req.params.expenseId);
 
       if (!isExpenseExits) {
         return res.status(400).json({
@@ -803,9 +986,10 @@ class ExpenseController {
       }
 
       const payment = await PAYMENTS.create({
-        eventId: req.params.event_id,
-        expenseId: req.params.expense_id,
+        eventId: req.params.eventId,
+        expenseId: req.params.expenseId,
         vendorId: isExpenseExits.vendor.vendorId,
+        paymentId: nanoid(),
         paymentCode,
         amount,
         paymentType,
@@ -828,7 +1012,7 @@ class ExpenseController {
       const newRemainingAmount = isExpenseExits.totalAmount - newPaidAmount;
 
       const updateExpense = await EXPENSE.findByIdAndUpdate(
-        req.params.expense_id,
+        req.params.expenseId,
         {
           $inc: { paidAmount: amount },
           $set: {
@@ -851,7 +1035,7 @@ class ExpenseController {
         });
       }
 
-      const updateEvent = await EVENT.findByIdAndUpdate(req.params.event_id, {
+      const updateEvent = await EVENT.findByIdAndUpdate(req.params.eventId, {
         $inc: {
           "expenseSummary.totalPaid": amount,
           "expenseSummary.totalRemaining": -amount,
@@ -923,7 +1107,7 @@ class ExpenseController {
 
   static async handleGetPaymentByEvent(req, res) {
     try {
-      const payment = await PAYMENTS.findOne({ eventId: req.params.event_id });
+      const payment = await PAYMENTS.findOne({ eventId: req.params.eventId });
 
       if (!payment) {
         return res.status(404).json({

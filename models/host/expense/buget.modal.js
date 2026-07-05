@@ -5,12 +5,16 @@ const { Schema, model } = mongoose;
 const budgetSchema = new Schema(
   {
     eventId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Event",
       required: true,
       index: true,
     },
-
+    budgetId: {
+      type: String,
+      required: true,
+      index: true,
+    },
     category: {
       type: String,
       required: true,
@@ -52,7 +56,7 @@ const budgetSchema = new Schema(
     notes: String,
 
     approvedBy: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "User",
     },
 
@@ -82,13 +86,20 @@ const budgetSchema = new Schema(
 
     budgetType: {
       type: String,
-      enum: ["Operational", "Vendor", "Marketing", "Emergency", "Miscellaneous"],
+      enum: [
+        "Operational",
+        "Vendor",
+        "Marketing",
+        "Emergency",
+        "Miscellaneous",
+      ],
       default: "Operational",
     },
 
     functionId: {
-      type: Schema.Types.ObjectId,
-      ref: "EventFunction",
+      type: String,
+      required: true,
+      uniquet: true,
     },
 
     startDate: Date,
@@ -102,7 +113,7 @@ const budgetSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 budgetSchema.index({ category: 1 });

@@ -89,7 +89,7 @@ const giftRegistrySchema = new mongoose.Schema(
     },
 
     photo: {
-      type: string,
+      type: String,
     },
 
     notes: {

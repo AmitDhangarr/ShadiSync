@@ -6,44 +6,41 @@ class HostGiftRoutes {
   router = null;
   constructor() {
     this.router = Router();
-    this.getAllRegistry();
     this.getGuestList();
     this.getCashReceived();
     this.getGuestList();
     this.getItemlist();
-    this.getGiftRegistry();
     this.getPaymentDetails();
-    this.getGiftRegistryByEvent();
-    this.getGiftRegistryByGuest();
     this.sendThankNote();
+    this.getAllRegistry();
+    this.getGiftRegistryByGuest();
+    this.giftregisteryAsperEvent();
      
   }
-  getGiftRegistry() {
-    this.router.get("/:id", giftController.getGiftRegistry);
-  }
+
   getAllRegistry() {
-    this.router.get("/gifts", giftController.getAllRegistry);
+    this.router.get("/:eventId/all", giftController.getAllRegistry);
   }
   sendThankNote() {
-    this.router.post("/thanknote/:id", giftController.sendThankYou);
+    this.router.post("/:eventId/thanknote/:id", giftController.sendThankYou);
   }
   getItemlist() {
-    this.router.get("/gifts/items", giftController.getItemList);
+    this.router.get("/:eventId/gifts/items", giftController.getItemList);
   }
   getCashReceived() {
-    this.router.get("/cash", giftController.getCashReceived);
+    this.router.get("/:eventId/cash", giftController.getCashReceived);
   }
   getGuestList() {
-    this.router.get("/guests", giftController.getGuestList);
+    this.router.get("/:eventId/guests", giftController.getGuestList);
   }
   getPaymentDetails() {
-    this.router.get("/payment/:id", giftController.getPaymentDetails);
-  }
-  getGiftRegistryByEvent() {
-    this.router.get("/event/:event_id", giftController.getGiftRegistryByEvent);
+    this.router.get("/:eventId/payment/:id", giftController.getPaymentDetails);
   }
   getGiftRegistryByGuest() {
-    this.router.get("/guest/:guestname", giftController.getGiftRegistryByGuest);
+    this.router.get("/:eventId/guest/:guestname", giftController.getGiftRegistryByGuest);
+  }
+   giftregisteryAsperEvent(){
+   this.router.get("/",giftController.HandleGiftRegistryAsperEvent);
   }
 }
 

@@ -5,21 +5,24 @@ const { Schema, model } = mongoose;
 const paymentSchema = new Schema(
   {
     eventId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Event",
       required: true,
       index: true,
     },
-
     expenseId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Expense",
       required: true,
     },
-
+    paymentId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     vendorId: {
-      type: Schema.Types.ObjectId,
-      ref: "Vendor",
+      type: String,
+      required: true,
     },
 
     paymentCode: {
@@ -41,13 +44,7 @@ const paymentSchema = new Schema(
 
     paymentMethod: {
       type: String,
-      enum: [
-        "Cash",
-        "UPI",
-        "Bank Transfer",
-        "Card",
-        "Cheque",
-      ],
+      enum: ["Cash", "UPI", "Bank Transfer", "Card", "Cheque"],
       required: true,
     },
 
@@ -60,12 +57,7 @@ const paymentSchema = new Schema(
 
     status: {
       type: String,
-      enum: [
-        "Pending",
-        "Completed",
-        "Failed",
-        "Cancelled",
-      ],
+      enum: ["Pending", "Completed", "Failed", "Cancelled"],
       default: "Completed",
     },
 
@@ -90,7 +82,7 @@ const paymentSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 paymentSchema.index({ expenseId: 1 });

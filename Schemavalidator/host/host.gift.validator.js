@@ -1,8 +1,8 @@
 import validator from "validator";
 
 const allowedGiftTypes = ["Cash", "Gift Item", "Gold", "Voucher"];
-
 const allowedPaymentModes = ["Cash", "UPI", "Cheque", "Bank Transfer", "Other"];
+const allowedRoles = ["guest", "co-host", "host"]; // <-- Added allowed roles
 
 const allowedFunctions = [
   "Engagement",
@@ -22,6 +22,7 @@ export const giftRegistrySchemaValidator = (data) => {
     guest_name,
     guest_family,
     mobile_number,
+    role, // <-- Extracted role
     gift_type,
     shagun_amount,
     gift_item_name,
@@ -56,6 +57,15 @@ export const giftRegistrySchemaValidator = (data) => {
     errors.mobile_number = "Invalid mobile number";
   } else {
     sanitizedData.mobile_number = mobile_number.toString().trim();
+  }
+
+  // --- Added Role Validation ---
+  if (!role || validator.isEmpty(role.toString().trim())) {
+    errors.role = "Role is required";
+  } else if (!allowedRoles.includes(role.toString().trim())) {
+    errors.role = "Role must be either guest, co-host or host only";
+  } else {
+    sanitizedData.role = role.toString().trim();
   }
 
   if (!gift_type || validator.isEmpty(gift_type.toString().trim())) {
@@ -167,6 +177,7 @@ export const giftRegistryupdateSchemaValidator = (data) => {
     "guest_name",
     "guest_family",
     "mobile_number",
+    "role", // <-- Allowed role to be updated
     "gift_type",
     "shagun_amount",
     "gift_item_name",
@@ -204,6 +215,15 @@ export const giftRegistryupdateSchemaValidator = (data) => {
       errors.mobile_number = "Invalid mobile number";
     } else {
       sanitizedData.mobile_number = data.mobile_number.toString().trim();
+    }
+  }
+
+  // --- Added Update Check for Role ---
+  if (data.role !== undefined) {
+    if (!allowedRoles.includes(data.role.toString().trim())) {
+      errors.role = "Role must be either guest, co-host or host only";
+    } else {
+      sanitizedData.role = data.role.toString().trim();
     }
   }
 
