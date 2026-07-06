@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
+import { nanoid } from "nanoid";
 
 const expenseSchema = new Schema(
   {
@@ -43,9 +44,10 @@ const expenseSchema = new Schema(
     subCategory: String,
 
     vendor: {
-      vendorId: {
-        type: Schema.Types.ObjectId,
-        ref: "Vendor",
+      vendorId:{
+        type:String,
+        unique:true,
+        default : ()=> nanoid()
       },
 
       name: String,

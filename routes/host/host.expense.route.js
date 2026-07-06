@@ -180,7 +180,7 @@ class HostExpenseRoutes {
   }
   getPaymentByEvent() {
     this.router.get(
-      "/payment/:eventId",
+      "/payment/event/:eventId",
       ExpenseController.handleGetPaymentByEvent,
     );
   }

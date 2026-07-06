@@ -3,6 +3,7 @@ import validator from "validator";
 const allowedPaymentTypes = ["Advance", "Partial", "Final", "Refund"];
 const allowedPaymentMethods = ["Cash", "UPI", "Bank Transfer", "Card", "Cheque"];
 const allowedStatuses = ["Pending", "Completed", "Failed", "Cancelled"];
+const allowedAttachmentTypes = ["Invoice", "Receipt", "Quotation", "Contract", "Other"];
 
 export const paymentSchemaValidator = (data) => {
   const errors = {};
@@ -77,15 +78,41 @@ export const paymentSchemaValidator = (data) => {
     sanitizedData.notes = validator.escape(notes.toString().trim());
   }
 
-  if (Array.isArray(attachments)) {
-    sanitizedData.attachments = attachments
-      .map((a) => ({
-        fileName: a.fileName
-          ? validator.escape(a.fileName.toString().trim())
-          : null,
-        fileUrl: a.fileUrl ? a.fileUrl.toString().trim() : null,
-      }))
-      .filter((a) => a.fileName && a.fileUrl);
+  if (!attachments || !Array.isArray(attachments) || attachments.length === 0) {
+    errors.attachments = "At least one attachment is required";
+  } else {
+    sanitizedData.attachments = attachments.map((a, i) => {
+      const attachment = a || {};
+
+      const fileName = attachment.fileName?.toString().trim();
+      const fileUrl = attachment.fileUrl?.toString().trim();
+      const type = attachment.type;
+
+      if (!type || validator.isEmpty(type.toString().trim())) {
+        errors[`attachments[${i}].type`] = "Attachment type is required";
+      } else if (!allowedAttachmentTypes.includes(type)) {
+        errors[`attachments[${i}].type`] = "Invalid attachment type";
+      }
+
+      if (!fileUrl || validator.isEmpty(fileUrl)) {
+        errors[`attachments[${i}].fileUrl`] = "File URL is required";
+      } else if (!validator.isURL(fileUrl, { require_protocol: true })) {
+        errors[`attachments[${i}].fileUrl`] = "Invalid file URL";
+      }
+
+      if (!fileName || validator.isEmpty(fileName)) {
+        errors[`attachments[${i}].fileName`] = "File name is required";
+      }
+
+      return {
+        type: allowedAttachmentTypes.includes(type) ? type : undefined,
+        fileUrl:
+          fileUrl && validator.isURL(fileUrl, { require_protocol: true })
+            ? fileUrl
+            : undefined,
+        fileName: fileName ? validator.escape(fileName) : undefined,
+      };
+    });
   }
 
   return {
@@ -94,3 +121,5 @@ export const paymentSchemaValidator = (data) => {
     sanitizedData,
   };
 };
+
+export default paymentSchemaValidator;

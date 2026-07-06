@@ -100,14 +100,6 @@ export const expenseSchemaValidator = (data) => {
     const vendor = unsantizedData.vendor;
     sanitizedData.vendor = {};
 
-    if (!vendor.vendorId) {
-      errors.vendorId = "Vendor ID is required";
-    } else if (!isValidObjectId(vendor.vendorId)) {
-      errors.vendorId = "Invalid Vendor ID";
-    } else {
-      sanitizedData.vendor.vendorId = vendor.vendorId;
-    }
-
     if (isBlank(vendor.name)) {
       errors.vendorName = "Vendor name is required";
     } else {
@@ -192,7 +184,6 @@ export const expenseSchemaValidator = (data) => {
     "bookingDate",
     "dueDate",
     "serviceDate",
-    "approvalDate",
   ];
 
   dateFields.forEach((field) => {
@@ -241,9 +232,6 @@ export const expenseSchemaValidator = (data) => {
 
   const objectIdFields = [
     "requestedBy",
-    "approvedBy",
-    "createdBy",
-    "updatedBy",
   ];
 
   objectIdFields.forEach((field) => {
@@ -262,12 +250,6 @@ export const expenseSchemaValidator = (data) => {
     errors.remarks = "Remarks is required";
   } else {
     sanitizedData.remarks = validator.escape(toTrimmedString(unsantizedData.remarks));
-  }
-
-  if (unsantizedData.isDeleted === undefined) {
-    errors.isDeleted = "isDeleted is required";
-  } else {
-    sanitizedData.isDeleted = Boolean(unsantizedData.isDeleted);
   }
 
   return {
