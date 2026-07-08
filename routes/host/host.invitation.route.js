@@ -22,7 +22,7 @@ class HostInvitationRoute {
    }
   createInvitation() {
     this.router.post(
-      "/:eventId",
+      "/:eventId/invite",
       InvitationValidator.ValidateCreateInvitation,
       HostInvitationController.HandlecreateInvitation,
     );

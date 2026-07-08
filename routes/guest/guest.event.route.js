@@ -16,7 +16,7 @@ class GuestEventRoute {
     this.router.get("/:id", GuestEventController.HandlegetEvent);
   }
   getEvents() {
-    this.router.get("/", GuestEventController.HandlegetEvents);
+    this.router.get("/all", GuestEventController.HandlegetEvents);
   }
   getEventUpcoming() {
     this.router.get(

@@ -7,7 +7,6 @@ class GuestInvitationRoutes {
 
   constructor() {
     this.router = Router();
-
     this.getInvitations();
     this.getInviterDetails();
     this.responsetoInvitation();
@@ -17,7 +16,7 @@ class GuestInvitationRoutes {
   }
 
   getInvitations() {
-    this.router.get("/", GuestInvitationController.handleGetInvitations);
+    this.router.get("/all", GuestInvitationController.handleGetInvitations);
   }
 
   getInviterDetails() {
@@ -33,14 +32,14 @@ class GuestInvitationRoutes {
 
   getChiefGuest() {
     this.router.get(
-      "/:event/chiefguest",
+      "/:eventId/chiefguest",
       GuestInvitationController.handleGetEventChiefGuests,
     );
   }
 
   getInvitationByEvent() {
     this.router.get(
-      "/event/:event",
+      "/:eventId",
       GuestInvitationController.handleGetInvitationsByEvent,
     );
   }

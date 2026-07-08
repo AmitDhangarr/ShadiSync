@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const InvitationSchema = new mongoose.Schema(
   {
     eventId: {
-      type:String,
+      type: String,
       required: true,
       unique: true,
     },
@@ -11,6 +11,10 @@ const InvitationSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+    },
+    userId: {
+      type: String,
+      required: true,
     },
     firstName: {
       type: String,
@@ -48,7 +52,6 @@ const InvitationSchema = new mongoose.Schema(
     },
     chiefGuest: {
       type: Boolean,
-      required: true,
     },
     note: {
       type: String,
@@ -71,7 +74,6 @@ const InvitationSchema = new mongoose.Schema(
 );
 
 const INVITATION =
-  mongoose.models.Invitation ||
-  mongoose.model("Invitation", InvitationSchema);
+  mongoose.models.Invitation || mongoose.model("Invitation", InvitationSchema);
 
 export default INVITATION;

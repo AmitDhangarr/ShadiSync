@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 import bcrypt from "bcrypt";
+import { nanoid } from "nanoid";
 
 const userSchema = new Schema(
   {
@@ -28,9 +29,10 @@ const userSchema = new Schema(
     role: {
       type: String,
       enum: {
-        values: ["host","cohost","guest"],
+        values: ["host", "co-host", "guest"],
         message: "Role must be either host,co-host or guest",
       },
+      id: () => nanoid(),
       required: true,
     },
     securityQuestion: {

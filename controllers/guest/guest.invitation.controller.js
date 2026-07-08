@@ -4,7 +4,8 @@ const ALLOWED_ACCEPTANCE = ["accepted", "not accepted"];
 
 class GuestInvitationController {
   static async handleGetInvitation(req, res) {
-    try {
+    try { 
+      
       const invitation = await INVITATION.findOne({ InviteId: req.params.id });
 
       if (!invitation) {
@@ -56,7 +57,7 @@ class GuestInvitationController {
       }
 
       
-      if (!receiverNote || receiverNote.trim() === " ") {
+      if (receiverNote.trim() === " ") {
         return res.status(400).json({
           success: false,
           message: "Note is mandatory",
