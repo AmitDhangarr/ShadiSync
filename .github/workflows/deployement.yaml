@@ -21,11 +21,14 @@ jobs:
           key: ${{ secrets.SSH_KEY_2 }}
           port: 22
           script: |
+            set -e
+
             sudo apt update
 
             if ! command -v docker &> /dev/null; then
-              sudo apt install -y docker.io docker-compose-plugin
-              sudo systemctl enable --now docker
+              curl -fsSL https://get.docker.com -o get-docker.sh
+              sudo sh get-docker.sh
+              sudo usermod -aG docker ubuntu
             fi
 
             if [ ! -d "/home/ubuntu/ShadiSync/.git" ]; then
@@ -33,5 +36,6 @@ jobs:
             fi
 
             cd /home/ubuntu/ShadiSync
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
             sudo docker compose up -d --build
