@@ -21,6 +21,17 @@ jobs:
           key: ${{ secrets.SSH_KEY_2 }}
           port: 22
           script: |
+            sudo apt update
+
+            if ! command -v docker &> /dev/null; then
+              sudo apt install -y docker.io docker-compose-plugin
+              sudo systemctl enable --now docker
+            fi
+
+            if [ ! -d "/home/ubuntu/ShadiSync/.git" ]; then
+              git clone https://github.com/AmitDhangarr/ShadiSync.git /home/ubuntu/ShadiSync
+            fi
+
             cd /home/ubuntu/ShadiSync
             git pull origin main
             sudo docker compose up -d --build
