@@ -15,6 +15,10 @@ jobs:
 
       - name: Deployment using SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          PORT: ${{ secrets.PORT }}
+          MONGODBURL: ${{ secrets.MONGODBURL }}
+          SECRET: ${{ secrets.SECRET }}
         with:
           host: ${{ secrets.SSH_HOST_2 }}
           username: ubuntu
@@ -39,4 +43,11 @@ jobs:
             cd /home/ubuntu/ShadiSync
             git fetch origin
             git reset --hard origin/main
+
+            cat <<EOF > .env
+            PORT=$PORT
+            MONGODBURL=$MONGODBURL
+            SECRET=$SECRET
+            EOF
+
             sudo docker compose up -d --build
