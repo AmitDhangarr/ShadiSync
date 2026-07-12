@@ -20,6 +20,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY_2 }}
           port: 22
+          envs: PORT,MONGODBURL,SECRET
           script: |
             set -e
 
