@@ -62,7 +62,7 @@ class StartServer {
   }
   start() {
     this.app.listen(this.port, () =>
-      console.log(`server is running at ${this.port}`),
+      console.log(`server is running at ${this.port}`,0.0.0.0),
     );
   }
   setRoutes() {

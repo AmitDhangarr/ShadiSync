@@ -82,7 +82,12 @@ class ExpenseController {
         message: "Budget created successfully.",
       });
     } catch (error) {
-      console.log(error);
+      if (err && error.code === 11000) {
+        return res.status(500).json({
+          success: false,
+          message: "Expense with ID already exits. Please try new one.",
+        });
+      }
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -593,7 +598,12 @@ class ExpenseController {
         message: "Expense created successfully.",
       });
     } catch (error) {
-      console.log(error);
+      if (err && error.code === 11000) {
+        return res.status(500).json({
+          success: false,
+          message: "Expense with ID already exits. Please try new one.",
+        });
+      }
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -1059,7 +1069,12 @@ class ExpenseController {
         message: "Payment created successfully.",
       });
     } catch (error) {
-      console.log(error);
+      if (err && error.code === 11000) {
+        return res.status(500).json({
+          success: false,
+          message: "Payment with ID already exits. Please try new one.",
+        });
+      }
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",

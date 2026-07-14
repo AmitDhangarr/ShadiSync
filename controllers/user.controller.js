@@ -97,6 +97,12 @@ class UserController {
         message: "Account created successfully.",
       });
     } catch (error) {
+      if (err && error.code === 11000) {
+        return res.status(500).json({
+          success: false,
+          message: "User already exits. Please try to account with another email.",
+        });
+      }
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",

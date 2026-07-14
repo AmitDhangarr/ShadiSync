@@ -84,7 +84,14 @@ class GuestGiftController {
         message: "Gift added successfully.",
       });
     } catch (error) {
-      console.log(error);
+
+      if (err && error.code === 11000) {
+        return res.status(500).json({
+          success: false,
+          message: "Gift with ID already exits. Please try new one.",
+        });
+      }
+    
       return res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again later.",
@@ -226,7 +233,7 @@ class GuestGiftController {
         });
       }
 
-       const gift = await GIFT.findOne({ giftId: gift_id });
+      const gift = await GIFT.findOne({ giftId: gift_id });
 
       if (!gift) {
         return res.status(404).json({

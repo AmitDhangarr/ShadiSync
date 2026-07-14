@@ -66,6 +66,14 @@ class HostInvitationController {
         message: "Invitation created successfully.",
       });
     } catch (error) {
+
+      if (err && error.code === 11000) {
+        return res.status(500).json({
+          success: false,
+          message: "Invitation with ID already exits. Please try new one.",
+        });
+      }
+
       return res.status(500).json({
         success: false,
         error: error,
