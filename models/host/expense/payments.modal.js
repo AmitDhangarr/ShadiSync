@@ -63,7 +63,6 @@ const paymentSchema = new Schema(
 
     attachments: [
       {
-        fileName: String,
         fileUrl: String,
       },
     ],

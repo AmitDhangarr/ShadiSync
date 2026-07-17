@@ -1,7 +1,7 @@
 import { Router } from "express";
 import ExpenseController from "../../controllers/host/expense.controller.js";
 import ExpenseValidator from "../../validator/expense.validator.js";
-import upload from "../../middlewares/upload.middleware.js";
+import uploadtoS3 from "../../middlewares/upload_middleware.js";
 class HostExpenseRoutes {
   router = null;
 
@@ -162,6 +162,7 @@ class HostExpenseRoutes {
   createPayment() {
     this.router.post(
       "/payment/:eventId/:expenseId/:vendorId/",
+      uploadtoS3("attachments"),
       ExpenseValidator.HandlePaymentsValidation,
       ExpenseController.handleCreatePayment,
     );

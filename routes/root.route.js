@@ -10,7 +10,7 @@ const router = Router();
     description:
       "An all-in-one event management system for handling events, invitations, gifts, and expenses.",
     links: {
-      documentation: "https://docs.shadisync.com",
+      documentation: "/api/v1/auth/docs",
       register: "/api/v1/auth/register",
       login: "/api/v1/auth/login",
     },

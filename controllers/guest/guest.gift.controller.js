@@ -17,7 +17,7 @@ const ALLOWED_FIELDS = [
 
 class GuestGiftController {
   static async HandleCreateGiftRegistry(req, res) {
-    const filename = req.file?.filename || "www.image.com";
+    const filename = req.file?.location || "www.image.com"; 
     try {
       const id = req.params.eventId;
       const event = await EVENT.findOne({ eventId: id });
@@ -65,7 +65,7 @@ class GuestGiftController {
         envelope_number,
         received_by,
         received_at,
-        photo,
+        photo:filename,
         notes,
         thank_you_sent,
         return_gift_given,

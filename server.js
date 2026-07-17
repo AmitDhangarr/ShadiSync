@@ -15,6 +15,9 @@ import UserAuthorisation from "./middlewares/authorisation.middleware.js";
 import hostRoute from "./routes/host/host.route.js";
 import GuestRoute from "./routes/guest/guest.route.js";
 import rateLimit from "express-rate-limit";
+import path from "path";
+import docsRoute from "./routes/docs.route.js";
+
 
 // cors configuration
 const corsOptions = {
@@ -59,10 +62,12 @@ class StartServer {
     this.apirateLimit = rateLimit(ratelimitConfig);
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.app.set('views',path.join('views'));
+    this.app.set('view engine','ejs');
   }
   start() {
-    this.app.listen(this.port, () =>
-      console.log(`server is running at ${this.port}`,0.0.0.0),
+    this.app.listen(this.port, () =>{
+      console.log(`server is running at ${this.port}`,"0.0.0.0");}
     );
   }
   setRoutes() {
@@ -82,6 +87,7 @@ class StartServer {
     this.app.get("/api/v1/host/dashboard",hostDashboardRoute);
     this.app.get("/api/v1/host",hostrootRoute);
     this.app.get("/api/v1/auth", authRoute);
+    this.app.get("/api/v1/docs", docsRoute);
     this.app.get("/api/v1/", rootRoute);
   }
   setMongoConnection() {

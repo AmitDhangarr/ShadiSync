@@ -955,6 +955,7 @@ class ExpenseController {
   // ── PAYMENTS ─────────────────────────────────────────────────────────────
 
   static async handleCreatePayment(req, res) {
+    const filename = req.file?.location || "www.image.com";
     try {
       const {
         paymentCode,
@@ -1011,7 +1012,7 @@ class ExpenseController {
         transactionReference,
         paymentDate,
         status,
-        attachments,
+        attachments:{fileUrl:filename},
         notes,
       });
 
