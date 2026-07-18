@@ -1,2 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadiSync - User Guide</title>
+<style>
+  :root{
+    --black:#000000;
+    --white:#ffffff;
+    --gray-1:#1a1a1a;
+    --gray-2:#444444;
+    --gray-3:#777777;
+    --gray-4:#cccccc;
+    --gray-5:#eeeeee;
+    --gray-6:#f7f7f7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background:var(--white);
+    color:var(--black);
+    line-height:1.55;
+  }
+  a{color:var(--black);}
+  header{
+    background:var(--black);
+    color:var(--white);
+    padding:2.5rem 1.5rem;
+    text-align:center;
+    border-bottom:4px solid var(--black);
+  }
+  header h1{
+    margin:0 0 .4rem 0;
+    font-size:2rem;
+    letter-spacing:.5px;
+  }
+  header p{
+    margin:0;
+    color:var(--gray-4);
+    font-size:.95rem;
+    max-width:560px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .badge{
+    display:inline-block;
+    border:1px solid var(--white);
+    padding:.15rem .6rem;
+    border-radius:20px;
+    font-size:.75rem;
+    margin-top:.8rem;
+    letter-spacing:.5px;
+  }
+  .wrap{
+    max-width:980px;
+    margin:0 auto;
+    padding:1.5rem;
+  }
+  .intro-box{
+    border:1px solid var(--black);
+    padding:1.2rem 1.4rem;
+    margin:1.5rem 0;
+    background:var(--gray-6);
+  }
+  .intro-box h2{margin-top:0;font-size:1.1rem;}
+  .intro-box ol, .intro-box ul{padding-left:1.2rem;margin:.6rem 0;}
+  .intro-box li{margin-bottom:.5rem;}
+  code, .code{
+    font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+    background:var(--gray-5);
+    padding:.1rem .4rem;
+    border-radius:3px;
+    font-size:.85em;
+    word-break:break-word;
+  }
+  .toc{
+    border:1px solid var(--black);
+    padding:1.2rem 1.4rem;
+    margin:1.5rem 0;
+  }
+  .toc h2{margin-top:0;font-size:1.1rem;}
+  .toc ul{
+    columns:2;
+    -webkit-columns:2;
+    margin:0;
+    padding-left:1.2rem;
+  }
+  .toc li{margin-bottom:.35rem;}
+  .toc a{text-decoration:none;border-bottom:1px dotted var(--gray-3);}
+  .toc a:hover{border-bottom:1px solid var(--black);}
 
-    This page was dynamically rendered using EJS.
+  section.module{
+    margin:2.8rem 0;
+    border-top:2px solid var(--black);
+    padding-top:1.2rem;
+  }
+  section.module h2{
+    font-size:1.35rem;
+    margin:0 0 .3rem 0;
+  }
+  .module-desc{
+    color:var(--gray-1);
+    font-size:.95rem;
+    margin:.2rem 0 .9rem 0;
+    max-width:760px;
+  }
+  .module-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+    margin-bottom:1rem;
+  }
+  .tag{
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    border:1px solid var(--gray-2);
+    color:var(--gray-2);
+    padding:.15rem .5rem;
+  }
+  .tag.strong{
+    border-color:var(--black);
+    color:var(--white);
+    background:var(--black);
+  }
+  .base-path{
+    display:inline-block;
+    background:var(--black);
+    color:var(--white);
+    padding:.2rem .6rem;
+    font-size:.8rem;
+    font-family: Consolas, Menlo, monospace;
+    margin-bottom:1rem;
+  }
+
+  table.routes{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:.5rem;
+  }
+  table.routes th{
+    text-align:left;
+    background:var(--black);
+    color:var(--white);
+    padding:.6rem .7rem;
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+  }
+  table.routes td{
+    padding:.65rem .7rem;
+    border-bottom:1px solid var(--gray-5);
+    font-size:.88rem;
+    vertical-align:top;
+  }
+  table.routes tr:nth-child(even) td{
+    background:var(--gray-6);
+  }
+  .method{
+    display:inline-block;
+    min-width:56px;
+    text-align:center;
+    padding:.15rem .4rem;
+    border:1px solid var(--black);
+    font-weight:700;
+    font-size:.75rem;
+    letter-spacing:.5px;
+  }
+  .method.get{background:var(--white);color:var(--black);}
+  .method.post{background:var(--black);color:var(--white);}
+  .method.patch{background:var(--gray-4);color:var(--black);}
+  .method.delete{background:var(--gray-2);color:var(--white);}
+
+  .param{
+    display:inline-block;
+    font-family:Consolas, Menlo, monospace;
+    font-size:.78em;
+    background:var(--gray-5);
+    padding:0 .3rem;
+    border-radius:2px;
+    margin:.05rem .1rem .05rem 0;
+  }
+  .field-list{
+    margin:.3rem 0 0 0;
+    padding-left:1.1rem;
+    font-size:.85em;
+    color:var(--gray-2);
+  }
+  .field-list li{margin-bottom:.15rem;}
+  .field-list code{background:transparent;padding:0;}
+  .body-label{
+    display:block;
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    color:var(--gray-3);
+    margin-top:.5rem;
+  }
+
+  .note{
+    font-size:.82rem;
+    color:var(--gray-3);
+    margin-top:.5rem;
+  }
+  .flag{
+    display:inline-block;
+    border:1px solid var(--gray-2);
+    color:var(--gray-2);
+    font-size:.7rem;
+    padding:0 .4rem;
+    margin-right:.3rem;
+  }
+
+  footer{
+    text-align:center;
+    padding:2rem 1rem;
+    border-top:2px solid var(--black);
+    color:var(--gray-3);
+    font-size:.85rem;
+  }
+
+  @media (max-width:640px){
+    .toc ul{columns:1;-webkit-columns:1;}
+    table.routes thead{display:none;}
+    table.routes, table.routes tbody, table.routes tr, table.routes td{
+      display:block;
+      width:100%;
+    }
+    table.routes tr{
+      border:1px solid var(--gray-4);
+      margin-bottom:.8rem;
+    }
+    table.routes td{
+      border-bottom:none;
+      padding:.5rem .7rem;
+    }
+    table.routes td::before{
+      content: attr(data-label);
+      display:block;
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      color:var(--gray-3);
+      margin-bottom:.15rem;
+    }
+    table.routes tr:nth-child(even) td{background:transparent;}
+    header h1{font-size:1.5rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ShadiSync API</h1>
+  <p>A complete, plain-language guide to every route in the ShadiSync event management API - what each one does, what it needs from you, and what role/login it requires.</p>
+  <span class="badge">v1.0.0 · /api/v1</span>
+</header>
+
+<div class="wrap">
+
+  <div class="intro-box">
+    <h2>What is ShadiSync?</h2>
+    <p>ShadiSync is a backend API for managing weddings and events end-to-end. It has three participant types:</p>
+    <ul>
+      <li><strong>Auth</strong> - anyone creating or logging into an account.</li>
+      <li><strong>Host</strong> - the organizer (role <code>host</code> or <code>cohost</code>) who creates events, sends invitations, tracks budgets/expenses/payments, and manages the gift registry.</li>
+      <li><strong>Guest</strong> - an invited attendee who views their invitations, RSVPs, and logs gifts they're giving.</li>
+    </ul>
+    <p style="margin-bottom:0;">All paths below are relative to the base URL: <code>https://shadisync.amitdhangar.in/api/v1</code></p>
+  </div>
+
+  <div class="intro-box">
+    <h2>Getting started (login flow)</h2>
+    <ol>
+      <li>Create an account with <code>POST /auth/register</code>, providing your name, email, password, phone, role, and a security question/answer pair (used later for password recovery).</li>
+      <li>Log in with <code>POST /auth/login</code> using your email and password. On success the server sets an authentication <code>token</code> as an HTTP cookie - your browser or HTTP client should send this cookie automatically on every request that follows.</li>
+      <li>Any route under <code>/host</code> or <code>/guest</code> requires that cookie to be present. Miss it, and you'll get a <code>404 "no token found"</code> error. Routes under <code>/host</code> additionally check that your account role is <code>host</code> or <code>cohost</code> - a plain guest account will get a <code>401 Access Denied</code>.</li>
+      <li>Forgot your password? Call <code>GET /auth/verify</code> to fetch your saved security question, answer it via <code>POST /auth/verify</code>, then set a new password with <code>PATCH /auth/reset_password/:id</code>.</li>
+      <li>Log out any time with <code>POST /auth/logout</code> to clear your session cookie.</li>
+    </ol>
+  </div>
+
+  <div class="intro-box">
+    <h2>Reading the tables below</h2>
+    <p style="margin-bottom:.3rem;">Each route lists:</p>
+    <ul style="margin-bottom:0;">
+      <li><strong>Method</strong> - the HTTP verb to use.</li>
+      <li><strong>Path</strong> - appended to the module's base path shown above each table. Anything written as <span class="param">:like_this</span> is a URL parameter you replace with a real ID/value.</li>
+      <li><strong>Purpose</strong> - what the route does, plus (where relevant) the exact request body fields it expects or the URL parameters it reads.</li>
+    </ul>
+  </div>
+
+  <div class="toc">
+    <h2>Contents</h2>
+    <ul>
+      <li><a href="#auth">Auth &amp; Account</a></li>
+      <li><a href="#host-gateway">Host Gateway</a></li>
+      <li><a href="#host-event">Host · Events</a></li>
+      <li><a href="#host-invitation">Host · Invitations</a></li>
+      <li><a href="#host-budget">Host · Budget</a></li>
+      <li><a href="#host-expense">Host · Expenses</a></li>
+      <li><a href="#host-payment">Host · Payments</a></li>
+      <li><a href="#host-gift">Host · Gift Registry</a></li>
+      <li><a href="#host-dashboard">Host · Dashboards</a></li>
+      <li><a href="#guest-event">Guest · Events</a></li>
+      <li><a href="#guest-invitation">Guest · Invitations</a></li>
+      <li><a href="#guest-gift">Guest · Gift Registry</a></li>
+      <li><a href="#system">System &amp; Docs</a></li>
+    </ul>
+  </div>
+
+  <section class="module" id="auth">
+    <h2>Auth &amp; Account</h2>
+    <p class="module-desc">Register, log in, recover your password, and manage your own profile.</p>
+    <div class="module-meta">
+      <span class="tag">No login required (except profile/account routes)</span>
+    </div>
+    <div class="base-path">/api/v1/auth</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose &amp; fields</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><code>/register</code></td>
+          <td data-label="Purpose">Create a new account.
+            <span class="body-label">Body</span>
+            <ul class="field-list">
+              <li><code>name</code> — letters only, 3–34 chars</li>
+              <li><code>email</code> — valid email</li>
+              <li><code>password</code> — alphanumeric, 6–18 chars</li>
+              <li><code>phone</code> — 10-digit number</li>
+              <li><code>role</code> — e.g. <code>host</code> or <code>guest</code></li>
+              <li><code>securityQuestion</code> — 10–200 chars</li>
+              <li><code>securityAnswer</code> — 3–100 chars</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><code>/login</code></td>
+          <td data-label="Purpose">Authenticate and receive a session cookie.
+            <span class="body-label">Body</span>
+            <ul class="field-list">
+              <li><code>email</code></li>
+              <li><code>password</code></li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><code>/logout</code></td>
+          <td data-label="Purpose">Clear your session cookie. No body needed.</td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><code>/forgot_password</code></td>
+          <td data-label="Purpose">Start password recovery for a given account (typically by email).</td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method get">GET</span></td>
+          <td data-label="Path"><code>/verify</code></td>
+          <td data-label="Purpose">Fetch the security question saved on your account.</td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><code>/verify</code></td>
+          <td data-label="Purpose">Submit your answer to the security question to unlock password reset.</td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method patch">PATCH</span></td>
+          <td data-label="Path"><code>/reset_password/</code><span class="param">:id</span></td>
+          <td data-label="Purpose">Set a new password after verification.
+            <span class="body-label">Params</span>
+            <ul class="field-list"><li><code>:id</code> — account ID</li></ul>
+          </td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method get">GET</span></td>
+          <td data-label="Path"><code>/profile</code></td>
+          <td data-label="Purpose">View your own profile (requires login).</td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><code>/profile/edit/</code><span class="param">:id</span></td>
+          <td data-label="Purpose">Edit your profile details (requires login).
+            <span class="body-label">Params</span>
+            <ul class="field-list"><li><code>:id</code> — account ID</li></ul>
+          </td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method delete">DELETE</span></td>
+          <td data-label="Path"><code>/account/</code><span class="param">:id</span></td>
+          <td data-label="Purpose">Permanently delete an account (requires login).
+            <span class="body-label">Params</span>
+            <ul class="field-list"><li><code>:id</code> — account ID</li></ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="host-gateway">
+    <h2>Host Gateway</h2>
+    <p class="module-desc">The entry point for hosts - a quick health check and a map of what's available under <code>/host</code>.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag strong">Role: host / cohost</span></div>
+    <div class="base-path">/api/v1/host</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/</code></td><td data-label="Purpose">Health check and links to the dashboard, event, invitation, expense, and gift modules.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="host-event">
+    <h2>Host · Events</h2>
+    <p class="module-desc">Create and manage the wedding/event records you organize - each event holds its own guests, food menu, and budget snapshot.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag strong">Role: host / cohost</span></div>
+    <div class="base-path">/api/v1/host/event</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose &amp; fields</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><code>/</code></td>
+          <td data-label="Purpose">Create a new event.
+            <span class="body-label">Body</span>
+            <ul class="field-list">
+              <li><code>event</code> — event name, 3–50 chars</li>
+              <li><code>eventDate</code> — ISO date</li>
+              <li><code>eventTime</code></li>
+              <li><code>eventVenue</code> — 3–100 chars</li>
+              <li><code>status</code> — one of <code>upcoming / ongoing / completed / cancelled</code></li>
+              <li><code>guests</code> — array of <code>{ name, phone }</code></li>
+              <li><code>foodItems</code> — array of <code>{ name, category }</code></li>
+              <li><code>photography</code>, <code>decoration</code> — booleans</li>
+              <li><code>budget</code> — number, minimum 1000</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method get">GET</span></td>
+          <td data-label="Path"><code>/</code></td>
+          <td data-label="Purpose">List all events you organize.</td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method get">GET</span></td>
+          <td data-label="Path"><code>/</code><span class="param">:id</span></td>
+          <td data-label="Purpose">Get full details of a single event.
+            <span class="body-label">Params</span>
+            <ul class="field-list"><li><code>:id</code> — event ID</li></ul>
+          </td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method patch">PATCH</span></td>
+          <td data-label="Path"><code>/</code><span class="param">:id</span></td>
+          <td data-label="Purpose">Update any of the fields listed above for an existing event.</td>
+        </tr>
+        <tr>
+          <td data-label="Method"><span class="method delete">DELETE</span></td>
+          <td data-label="Path"><code>/</code><span class="param">:id</span></td>
+          <td data-label="Purpose">Delete an event and its record.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="host-invitation">
+    <h2>Host · Invitations</h2>
+    <p class="module-desc">Invite guests to an event and track who's accepted, declined, or hasn't responded yet.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag strong">Role: host / cohost</span></div>
+    <div class="base-path">/api/v1/host/invitation</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose &amp; fields</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/</code></td><td data-label="Purpose">List invitations grouped by event.</td></tr>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><span class="param">:eventId</span><code>/invite</code></td>
+          <td data-label="Purpose">Send a new invitation for an event.
+            <span class="body-label">Body</span>
+            <ul class="field-list">
+              <li><code>firstName</code>, <code>lastName</code>, <code>address</code></li>
+              <li><code>contactNumber</code> — numeric</li>
+              <li><code>event</code>, <code>date</code> (ISO), <code>time</code></li>
+              <li><code>category</code> — <code>local / relative / friend / friend of friend</code></li>
+              <li><code>chiefGuest</code> — boolean (optional)</li>
+              <li><code>status</code> — <code>invited</code> or <code>yet to invite</code> (optional)</li>
+              <li><code>acceptance</code> — <code>accepted / rejected / pending</code> (optional)</li>
+            </ul>
+          </td>
+        </tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/invitees/all</code></td><td data-label="Purpose">List every invitee for one event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/invitee/</code><span class="param">:id</span></td><td data-label="Purpose">Get one invitee's full details.</td></tr>
+        <tr><td data-label="Method"><span class="method patch">PATCH</span></td><td data-label="Path"><span class="param">:eventId</span><code>/invitee/</code><span class="param">:id</span></td><td data-label="Purpose">Update an invitation — same fields as create, all optional.</td></tr>
+        <tr><td data-label="Method"><span class="method delete">DELETE</span></td><td data-label="Path"><span class="param">:eventId</span><code>/invitee/</code><span class="param">:id</span></td><td data-label="Purpose">Remove an invitation entirely.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/invitees/tracking</code></td><td data-label="Purpose">See RSVP/acceptance tracking stats for an event.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="host-budget">
+    <h2>Host · Budget</h2>
+    <p class="module-desc">Set spending limits per event, split by category (vendor, marketing, emergency, etc.), and track allocated vs. consumed amounts.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag strong">Role: host / cohost</span></div>
+    <div class="base-path">/api/v1/host/expense/budget</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose &amp; fields</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><span class="param">:eventId</span></td>
+          <td data-label="Purpose">Create a budget line for an event.
+            <span class="body-label">Body</span>
+            <ul class="field-list">
+              <li><code>title</code>, <code>category</code>, <code>subCategory</code></li>
+              <li><code>budgetCode</code> — 3–30 chars, letters/numbers/hyphen/underscore</li>
+              <li><code>budgetType</code> — <code>Operational / Vendor / Marketing / Emergency / Miscellaneous</code></li>
+              <li><code>status</code> — <code>Draft / Approved / Closed</code></li>
+              <li><code>allocatedAmount</code>, <code>revisedAmount</code>, <code>consumedAmount</code> — numbers</li>
+              <li><code>approvedBy</code>, <code>functionId</code>, <code>notes</code></li>
+              <li><code>startDate</code>, <code>endDate</code> — ISO dates</li>
+              <li><code>isLocked</code> — boolean</li>
+            </ul>
+          </td>
+        </tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/all</code></td><td data-label="Purpose">List every budget line for an event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/totalAmount</code></td><td data-label="Purpose">Get the total allocated amount across budgets.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/category/</code><span class="param">:category</span></td><td data-label="Purpose">Filter budgets by category name.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/event/</code><span class="param">:eventId</span></td><td data-label="Purpose">Get the full budget summary for one event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/approved</code></td><td data-label="Purpose">List budget lines with status <code>Approved</code>.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/closed</code></td><td data-label="Purpose">List budget lines with status <code>Closed</code>.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/drafted</code></td><td data-label="Purpose">List budget lines still in <code>Draft</code>.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Get one specific budget line.</td></tr>
+        <tr><td data-label="Method"><span class="method patch">PATCH</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Update a budget line — same fields as create.</td></tr>
+        <tr><td data-label="Method"><span class="method delete">DELETE</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Delete a budget line.</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Rule enforced server-side: <code>consumedAmount</code> can never exceed the <code>revisedAmount</code> (or <code>allocatedAmount</code> if no revision exists), and <code>startDate</code> must be before <code>endDate</code>.</p>
+  </section>
+
+  <section class="module" id="host-expense">
+    <h2>Host · Expenses</h2>
+    <p class="module-desc">Log individual vendor costs and line items against a budget - includes vendor contact info, tax/discount breakdown, and file attachments.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag strong">Role: host / cohost</span></div>
+    <div class="base-path">/api/v1/host/expense</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose &amp; fields</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><span class="param">:eventId</span>/<span class="param">:budgetId</span></td>
+          <td data-label="Purpose">Create a new expense under a budget.
+            <span class="body-label">Body</span>
+            <ul class="field-list">
+              <li><code>expenseCode</code>, <code>title</code>, <code>description</code></li>
+              <li><code>category</code>, <code>subCategory</code></li>
+              <li><code>vendor</code> — object: <code>{ name, contactPerson, phone, email, gstNumber }</code></li>
+              <li><code>estimatedAmount</code>, <code>actualAmount</code>, <code>taxAmount</code>, <code>discountAmount</code>, <code>totalAmount</code>, <code>paidAmount</code>, <code>remainingAmount</code> — numbers</li>
+              <li><code>status</code> — <code>Draft / Pending Approval / Approved / Booked / Completed / Cancelled</code></li>
+              <li><code>paymentStatus</code> — <code>Unpaid / Partial / Paid / Refunded</code></li>
+              <li><code>priority</code> — <code>Low / Medium / High / Urgent</code></li>
+              <li><code>expenseDate</code>, <code>bookingDate</code>, <code>dueDate</code>, <code>serviceDate</code> — ISO dates</li>
+              <li><code>attachments</code> — array of <code>{ type, fileUrl, fileName }</code>, type one of <code>Invoice / Receipt / Quotation / Contract / Other</code></li>
+              <li><code>requestedBy</code> — Mongo ObjectId of the requester</li>
+              <li><code>remarks</code></li>
+            </ul>
+          </td>
+        </tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/all</code></td><td data-label="Purpose">List every expense for an event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/event/</code><span class="param">:eventId</span></td><td data-label="Purpose">Get expenses grouped by event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/vendor/</code><span class="param">:name</span></td><td data-label="Purpose">Filter expenses by vendor name.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/priority/</code><span class="param">:priority</span></td><td data-label="Purpose">Filter expenses by priority level.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/totalAmount</code></td><td data-label="Purpose">Get the total expense amount for an event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/amountPaid</code></td><td data-label="Purpose">Get the total amount already paid.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Get one specific expense.</td></tr>
+        <tr><td data-label="Method"><span class="method patch">PATCH</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Update an expense.</td></tr>
+        <tr><td data-label="Method"><span class="method delete">DELETE</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Delete an expense.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="host-payment">
+    <h2>Host · Payments</h2>
+    <p class="module-desc">Record and track payments made toward an expense, with receipt uploads and settlement status.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag strong">Role: host / cohost</span><span class="tag">Multipart upload</span></div>
+    <div class="base-path">/api/v1/host/expense/payment</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose &amp; fields</th></tr></thead>
+      <tbody>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><span class="param">:eventId</span>/<span class="param">:expenseId</span>/<span class="param">:vendorId</span></td>
+          <td data-label="Purpose">Record a payment. Send as <code>multipart/form-data</code> so you can attach a receipt file under the field <code>attachments</code>.
+            <span class="body-label">Body</span>
+            <ul class="field-list">
+              <li><code>paymentCode</code>, <code>amount</code> — number</li>
+              <li><code>paymentType</code> — <code>Advance / Partial / Final / Refund</code></li>
+              <li><code>paymentMethod</code> — <code>Cash / UPI / Bank Transfer / Card / Cheque</code></li>
+              <li><code>paymentDate</code> — ISO date</li>
+              <li><code>status</code> — <code>Pending / Completed / Failed / Cancelled</code> (optional)</li>
+              <li><code>transactionReference</code>, <code>notes</code> (optional)</li>
+              <li><code>attachments</code> — array of <code>{ type, fileUrl, fileName }</code></li>
+            </ul>
+          </td>
+        </tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/all</code></td><td data-label="Purpose">List all payments for an event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/event/</code><span class="param">:eventId</span></td><td data-label="Purpose">Get payments grouped by event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/method/</code><span class="param">:method</span></td><td data-label="Purpose">Filter payments by method (cash, UPI, card, etc.).</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/vendor/</code><span class="param">:vendorId</span></td><td data-label="Purpose">Filter payments by vendor.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/status/</code><span class="param">:status</span></td><td data-label="Purpose">Filter payments by status (pending, completed, etc.).</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/type/</code><span class="param">:type</span></td><td data-label="Purpose">Filter payments by payment type.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Get one specific payment record.</td></tr>
+        <tr><td data-label="Method"><span class="method delete">DELETE</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:expenseId</span>/<span class="param">:id</span></td><td data-label="Purpose">Delete a payment record.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="host-gift">
+    <h2>Host · Gift Registry</h2>
+    <p class="module-desc">Review the gifts and cash contributions guests have logged, and send them a thank-you note.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag strong">Role: host / cohost</span></div>
+    <div class="base-path">/api/v1/host/gift</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/</code></td><td data-label="Purpose">List gift registries grouped by event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/all</code></td><td data-label="Purpose">List every registry entry for an event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/gifts/items</code></td><td data-label="Purpose">List physical gift items received.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/cash</code></td><td data-label="Purpose">See total cash/shagun gifts received.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/guests</code></td><td data-label="Purpose">List guests who have given gifts.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/guest/</code><span class="param">:guestname</span></td><td data-label="Purpose">Look up gifts logged by a specific guest.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/payment/</code><span class="param">:id</span></td><td data-label="Purpose">Get payment details for a cash gift.</td></tr>
+        <tr><td data-label="Method"><span class="method post">POST</span></td><td data-label="Path"><span class="param">:eventId</span><code>/thanknote/</code><span class="param">:id</span></td><td data-label="Purpose">Send a thank-you note to the gift-giver.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="host-dashboard">
+    <h2>Host · Dashboards</h2>
+    <p class="module-desc">At-a-glance summaries across events, invitations, expenses, and gifts - useful for building a homepage or overview screen.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag strong">Role: host / cohost</span></div>
+    <div class="base-path">/api/v1/host/dashboard</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/event</code></td><td data-label="Purpose">Overview and metrics for your events.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/invitation</code></td><td data-label="Purpose">Analytics and status of invitations sent.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/expense</code></td><td data-label="Purpose">Budget breakdown and expense tracking.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/gift</code></td><td data-label="Purpose">Registry details and gifts received.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="guest-event">
+    <h2>Guest · Events</h2>
+    <p class="module-desc">As an invited guest, view the events you're part of and their status.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span></div>
+    <div class="base-path">/api/v1/guest/event</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/all</code></td><td data-label="Purpose">List all events you're invited to.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/upcoming</code></td><td data-label="Purpose">List upcoming events.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/completed</code></td><td data-label="Purpose">List events that have already happened.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/cancelled</code></td><td data-label="Purpose">List cancelled events.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:id</span></td><td data-label="Purpose">Get details of one event.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="guest-invitation">
+    <h2>Guest · Invitations</h2>
+    <p class="module-desc">View invitations you've received, see who invited you, and respond.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span></div>
+    <div class="base-path">/api/v1/guest/invitation</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose &amp; fields</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/all</code></td><td data-label="Purpose">List all invitations you've received.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/inviter</code></td><td data-label="Purpose">See who invited you.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/invite/</code><span class="param">:id</span></td><td data-label="Purpose">Get one specific invitation.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span></td><td data-label="Purpose">Get your invitation details for a specific event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/chiefguest</code></td><td data-label="Purpose">See the chief guest(s) for an event.</td></tr>
+        <tr>
+          <td data-label="Method"><span class="method patch">PATCH</span></td>
+          <td data-label="Path"><code>/response/</code><span class="param">:id</span></td>
+          <td data-label="Purpose">RSVP to an invitation.
+            <span class="body-label">Body</span>
+            <ul class="field-list"><li><code>acceptance</code> — <code>accepted / rejected / pending</code></li></ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="module" id="guest-gift">
+    <h2>Guest · Gift Registry</h2>
+    <p class="module-desc">Register a gift you're giving to the couple/host - cash, a physical item, gold, or a voucher.</p>
+    <div class="module-meta"><span class="tag strong">Login required</span><span class="tag">Multipart upload on create</span></div>
+    <div class="base-path">/api/v1/guest/gift</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose &amp; fields</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/</code></td><td data-label="Purpose">List gift registries grouped by event.</td></tr>
+        <tr>
+          <td data-label="Method"><span class="method post">POST</span></td>
+          <td data-label="Path"><span class="param">:eventId</span><code>/register</code></td>
+          <td data-label="Purpose">Register a new gift. Send as <code>multipart/form-data</code> to attach a <code>photo</code>.
+            <span class="body-label">Body</span>
+            <ul class="field-list">
+              <li><code>guest_name</code>, <code>guest_family</code></li>
+              <li><code>mobile_number</code> — valid Indian mobile number</li>
+              <li><code>role</code> — <code>guest / co-host / host</code></li>
+              <li><code>gift_type</code> — <code>Cash / Gift Item / Gold / Voucher</code></li>
+              <li><code>shagun_amount</code> — number</li>
+              <li><code>gift_item_name</code>, <code>gift_description</code></li>
+              <li><code>function_name</code> — <code>Engagement / Haldi / Mehndi / Sangeet / Wedding / Reception / Other</code></li>
+              <li><code>payment_mode</code> — <code>Cash / UPI / Cheque / Bank Transfer / Other</code></li>
+              <li><code>transaction_reference</code>, <code>envelope_number</code></li>
+              <li><code>received_by</code>, <code>received_at</code> — ISO date</li>
+              <li><code>notes</code>, <code>thank_you_sent</code>, <code>return_gift_given</code> — booleans</li>
+            </ul>
+          </td>
+        </tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span><code>/all</code></td><td data-label="Purpose">List all your gift registrations for an event.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Get one gift registration.</td></tr>
+        <tr>
+          <td data-label="Method"><span class="method patch">PATCH</span></td>
+          <td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td>
+          <td data-label="Purpose">Update a gift registration. Only these fields can change: <code>guest_name, guest_family, mobile_number, role, gift_type, shagun_amount, gift_item_name, gift_description, payment_mode, transaction_reference, notes, photo</code>.</td>
+        </tr>
+        <tr><td data-label="Method"><span class="method delete">DELETE</span></td><td data-label="Path"><span class="param">:eventId</span>/<span class="param">:id</span></td><td data-label="Purpose">Remove a gift registration.</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><span class="flag">Note</span>The route <code>/guest/expense</code> exists in the codebase but currently points to the account password-update handler rather than a working expense feature — treat it as not yet implemented.</p>
+  </section>
+
+  <section class="module" id="system">
+    <h2>System &amp; Docs</h2>
+    <p class="module-desc">Utility routes for health checks and discovering the API.</p>
+    <div class="base-path">/api/v1</div>
+    <table class="routes">
+      <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/</code></td><td data-label="Purpose">API root — health check and quick links to docs, register, and login.</td></tr>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Path"><code>/docs</code></td><td data-label="Purpose">This rendered documentation page.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="intro-box">
+    <h2>Quick reference: HTTP methods</h2>
+    <table class="routes">
+      <tbody>
+        <tr><td data-label="Method"><span class="method get">GET</span></td><td data-label="Meaning">Read/fetch data — no changes made.</td></tr>
+        <tr><td data-label="Method"><span class="method post">POST</span></td><td data-label="Meaning">Create something new (or, for login, start a session).</td></tr>
+        <tr><td data-label="Method"><span class="method patch">PATCH</span></td><td data-label="Meaning">Update part of an existing record.</td></tr>
+        <tr><td data-label="Method"><span class="method delete">DELETE</span></td><td data-label="Meaning">Remove a record permanently.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="intro-box">
+    <h2>Error responses &amp; rate limits</h2>
+    <ul style="margin-bottom:0;">
+      <li>Missing or invalid login cookie → <code>404</code> with <code>"no token found"</code> or <code>"invalid token found"</code>.</li>
+      <li>Logged in but wrong role for <code>/host</code> routes → <code>401 Access Denied</code>.</li>
+      <li>Failed field validation on a create/update route → <code>400</code> or <code>404</code> with an <code>errors</code> object listing every invalid field.</li>
+      <li>All <code>/api/v1</code> routes are rate-limited: 20 requests per 5 minutes when unauthenticated, 50 requests per 5 minutes once logged in. Going over returns <code>429 "Too many requests"</code>.</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>
+  ShadiSync API User Guide 
+</footer>
+
+</body>
+</html>
