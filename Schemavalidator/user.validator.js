@@ -1,6 +1,7 @@
 import validator from "validator";
 
 export const userSchemaValidator = (data) => {
+  const allowedRoles = ["Host", "Co Host", "Guest"];
   const errors = {};
   const sanitizedData = {};
   const { name, email, password, phone, role ,securityQuestion,securityAnswer} = data || {};
@@ -49,10 +50,12 @@ export const userSchemaValidator = (data) => {
 
   // validator for role
   if (!role || validator.isEmpty(role.trim())) {
-    errors.role = "Role is required";
-  } else {
-    sanitizedData.role = role.trim();
-  }
+  errors.role = "Role is required";
+} else if (!allowedRoles.includes(role.trim())) {
+  errors.role = `Role must be one of: ${allowedRoles.join(", ")}`;
+} else {
+  sanitizedData.role = role.trim();
+}
 
   // validator for securityQuestion
   if (!securityQuestion) {

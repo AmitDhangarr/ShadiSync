@@ -3,7 +3,7 @@ class UserAuthorisation {
     const {payload} = req.user;
     const role = payload.role;
     
-    if(role === "host" || "cohost") {
+    if(role === "host" || "co-host") {
         next();
     } else {
        res

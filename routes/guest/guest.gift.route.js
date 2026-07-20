@@ -1,7 +1,6 @@
 import { Router } from "express";
 import GuestGiftController from "../../controllers/guest/guest.gift.controller.js";
 import GiftValidator from "../../validator/gift.validator.js";
-import upload from "../../middlewares/upload.middleware.js";
 import uploadtoS3 from "../../middlewares/upload_middleware.js";
 class GuestGiftRoute {
   router = null;

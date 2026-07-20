@@ -17,7 +17,7 @@ class HostEventController {
       });
     } catch (error) {
 
-      if (err && error.code === 11000) {
+      if (error && error.code === 11000) {
         return res.status(500).json({
           success: false,
           message: "Event with ID already exits. Please try new one.",
