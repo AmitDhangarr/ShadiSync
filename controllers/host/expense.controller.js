@@ -260,6 +260,15 @@ class ExpenseController {
 
       const event = await EVENT.findOne({ eventId: id });
 
+      const role = req.user.payload.role;
+
+      if (role === "co-host") {
+        return res.status(401).json({
+          success: false,
+          message: "Co-host is not allowed to perform delete operation",
+        });
+      }
+
       if (!event) {
         return res.status(400).json({
           success: false,
@@ -789,6 +798,15 @@ class ExpenseController {
       const id = req.params.eventId;
       const expenseId = req.params.id;
 
+      const role = req.user.payload.role;
+
+      if (role === "co-host") {
+        return res.status(401).json({
+          success: false,
+          message: "Co-host is not allowed to perform delete operation",
+        });
+      }
+
       const event = await EVENT.findOne({ eventId: id });
 
       if (!event) {
@@ -1012,7 +1030,7 @@ class ExpenseController {
         transactionReference,
         paymentDate,
         status,
-        attachments:{fileUrl:filename},
+        attachments: { fileUrl: filename },
         notes,
       });
 
@@ -1260,6 +1278,15 @@ class ExpenseController {
       const event = await EVENT.findOne({ eventId: id });
       const expenseId = req.params.expenseId;
 
+      const role = req.user.payload.role;
+
+      if (role === "co-host") {
+        return res.status(401).json({
+          success: false,
+          message: "Co-host is not allowed to perform delete operation",
+        });
+      }
+
       if (!event) {
         return res.status(400).json({
           success: false,
@@ -1276,7 +1303,6 @@ class ExpenseController {
         });
       }
 
-      
       const isPaymentExits = await PAYMENTS.findOne({ expenseId: expenseId });
 
       if (!isPaymentExits) {
@@ -1285,7 +1311,7 @@ class ExpenseController {
           message: "Expense does not found.",
         });
       }
-     
+
       const payment = await PAYMENTS.findByIdAndDelete(isPaymentExits._id);
 
       if (!payment) {

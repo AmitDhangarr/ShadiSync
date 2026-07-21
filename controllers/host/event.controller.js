@@ -6,7 +6,7 @@ class HostEventController {
     try {
       const event = await EVENT.create({
         eventId: nanoid(),
-        userId:req?.user.payload._id,
+        userId: req?.user.payload._id,
         ...req.body,
       });
 
@@ -16,7 +16,6 @@ class HostEventController {
         message: "Event created successfully.",
       });
     } catch (error) {
-
       if (error && error.code === 11000) {
         return res.status(500).json({
           success: false,
@@ -26,7 +25,7 @@ class HostEventController {
 
       return res.status(500).json({
         success: false,
-        error:error,
+        error: error,
         message: "Something went wrong. Please try again later.",
       });
     }
@@ -63,7 +62,10 @@ class HostEventController {
       return res.status(200).json({
         success: true,
         data: events,
-        message: events.length === 0 ? "No events found." : "Events fetched successfully.",
+        message:
+          events.length === 0
+            ? "No events found."
+            : "Events fetched successfully.",
       });
     } catch (error) {
       return res.status(500).json({
@@ -103,7 +105,18 @@ class HostEventController {
 
   static async HandleDeleteEvent(req, res) {
     try {
-      const deletedEvent = await EVENT.findOneAndDelete({ eventId: req.params.id });
+      const role = req.user.payload.role;
+
+      if (role === "co-host") {
+        return res.status(401).json({
+          success: false,
+          message: "Co-host is not allowed to perform delete operation",
+        });
+      }
+
+      const deletedEvent = await EVENT.findOneAndDelete({
+        eventId: req.params.id,
+      });
 
       if (!deletedEvent) {
         return res.status(404).json({
@@ -114,7 +127,7 @@ class HostEventController {
 
       return res.status(200).json({
         success: true,
-        data:deletedEvent.event,
+        data: deletedEvent.event,
         message: "Event deleted successfully.",
       });
     } catch (error) {

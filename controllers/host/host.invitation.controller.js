@@ -189,6 +189,15 @@ class HostInvitationController {
       const id = req.params.eventId;
       const event = await EVENT.findOne({ eventId: id });
 
+       const role = req.user.payload.role;
+
+      if (role === "co-host") {
+        return res.status(401).json({
+          success: false,
+          message: "Co-host is not allowed to perform delete operation",
+        });
+      }
+
       if (!event) {
         return res.status(404).json({
           success: false,
@@ -212,6 +221,8 @@ class HostInvitationController {
         data: invitation,
         message: "Invitation deleted successfully.",
       });
+
+      
     } catch (error) {
       return res.status(500).json({
         success: false,

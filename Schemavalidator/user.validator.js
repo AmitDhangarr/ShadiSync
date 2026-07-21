@@ -1,7 +1,7 @@
 import validator from "validator";
 
 export const userSchemaValidator = (data) => {
-  const allowedRoles = ["Host", "Co Host", "Guest"];
+  const allowedRoles = ["host", "co-host", "guest"];
   const errors = {};
   const sanitizedData = {};
   const { name, email, password, phone, role ,securityQuestion,securityAnswer} = data || {};
