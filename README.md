@@ -2,7 +2,7 @@
 
 ShadiSync is an all-in-one event management system that streamlines the process of planning and organizing events. It provides features for event scheduling, invitation handling, expense tracking, and gift management, ensuring a smooth and hassle-free experience.
 
-Live Demo: [www.shadisync.amitdhangar.in](https://www.shadisync.amitdhangar.in)
+Live Demo: [www.shadisync.amitdhangar.in](https://shadisync.amitdhangar.in)
 
 ---
 
@@ -120,7 +120,7 @@ ShadiSync exposes a REST API for managing events, invitations, expenses, and gif
 
 The live version of this project is hosted at:
 
-[www.shadisync.amitdhangar.in](https://www.shadisync.amitdhangar.in)
+[www.shadisync.amitdhangar.in](https://shadisync.amitdhangar.in)
 
 ---
 
