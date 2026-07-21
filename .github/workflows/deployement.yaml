@@ -1,4 +1,4 @@
-name: "Continuos Integration and Deployment"
+name: "Continuous Integration and Deployment"
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY_2 }}
           port: 22
-          envs: PORT,MONGODBURL,SECRET
+          envs: PORT,MONGODBURL,SECRET,AWS_REGION,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_BUCKET_NAME
           script: |
             set -e
 
@@ -50,14 +50,13 @@ jobs:
             git reset --hard origin/main
 
             cat <<EOF > .env
-            PORT=$PORT
-            MONGODBURL=$MONGODBURL
-            SECRET=$SECRET
-            AWS_REGION=$AWS_REGION
-            AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-            AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-            AWS_BUCKET_NAME=$AWS_BUCKET_NAME
-
+             PORT=$PORT
+             MONGODBURL=$MONGODBURL
+             SECRET=$SECRET
+             AWS_REGION=$AWS_REGION
+             AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+             AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+             AWS_BUCKET_NAME=$AWS_BUCKET_NAME
             EOF
 
             sudo docker compose up -d --build
