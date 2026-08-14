@@ -18,12 +18,26 @@ import rateLimit from "express-rate-limit";
 import path from "path";
 import docsRoute from "./routes/docs.route.js";
 
-
 // cors configuration
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:8080",
+  "http://127.0.0.1:3000",
+];
+
 const corsOptions = {
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-API-KEY"],
+  credentials: true,
+  optionsSuccessStatus: 200,
 };
 
 // rate limiting config
@@ -62,13 +76,13 @@ class StartServer {
     this.apirateLimit = rateLimit(ratelimitConfig);
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
-    this.app.set('views',path.join('views'));
-    this.app.set('view engine','ejs');
+    this.app.set("views", path.join("views"));
+    this.app.set("view engine", "ejs");
   }
   start() {
-    this.app.listen(this.port, () =>{
-      console.log(`server is running at ${this.port}`,"0.0.0.0");}
-    );
+    this.app.listen(this.port, () => {
+      console.log(`server is running at ${this.port}`, "0.0.0.0");
+    });
   }
   setRoutes() {
     this.app.use("/api/v1/", this.apirateLimit);
@@ -79,13 +93,13 @@ class StartServer {
       UserAuthorisation.checkRole,
       hostRoute,
     );
-    
+
     this.app.use("/api/v1/guest", AuthMiddleware.AuthUser, GuestRoute);
 
     // fallback routes
-    this.app.get("/api/v1/host/expense",financialRoute);
-    this.app.get("/api/v1/host/dashboard",hostDashboardRoute);
-    this.app.get("/api/v1/host",hostrootRoute);
+    this.app.get("/api/v1/host/expense", financialRoute);
+    this.app.get("/api/v1/host/dashboard", hostDashboardRoute);
+    this.app.get("/api/v1/host", hostrootRoute);
     this.app.get("/api/v1/auth", authRoute);
     this.app.get("/api/v1/docs", docsRoute);
     this.app.get("/api/v1/", rootRoute);
